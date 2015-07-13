@@ -2,12 +2,6 @@ debug = true
 
 local socket = require("socket")
 
--- CONTEST : http://contest.gamedevfort.com/
-
--- https://love2d.org/forums/viewtopic.php?f=5&t=3550
--- http://www.osmstudios.com/tutorials/your-first-love2d-game-in-200-lines-part-1-of-3
--- https://love2d.org/wiki/Tutorial:Networking_with_UDP
-
 -- the address and port of the server
 local address, port = "localhost", 12345
 
