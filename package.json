@@ -1,0 +1,19 @@
+{
+  "name": "IGMC_2015_Grow",
+  "version": "0.0.1",
+  "author": "Michael Adam Lockwood & Calum P Teeling",
+  "private": true,
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib-clean": "*",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-imagemin": "*",
+    "grunt-contrib-watch": "*",
+    "grunt-newer": "*"
+  },
+  "dependencies": {
+    "bower": "*",
+    "imagemin": "^3.2.0",
+    "time-grunt": "*"
+  }
+}
