@@ -5,6 +5,7 @@
 	},
 	"private": true,
 	"devDependencies": {
-	
+		"love2d-light-and-shadow-engine" : "https://bitbucket.org/PriorBlue/love2d-light-and-shadow-engine.git",
+		"anim8" : "https://github.com/kikito/anim8.git"
 	}
 }
