@@ -1,5 +1,27 @@
 debug = true
 
+love.graphics.setBackgroundColor( 0, 10, 20 )
+
+local function load(filename)
+   local ok, chunk, result
+   ok, chunk = pcall( love.filesystem.load, filename ) -- load the chunk safely
+   if not ok then
+     print('The following error happened1: ' .. tostring(chunk))
+   else
+     ok, result = pcall(chunk) -- execute the chunk safely
+
+     if not ok then -- will be false if there is an error
+      print('The following error happened2: ' .. tostring(result))
+     else
+      print('The result of loading is: ' .. tostring(result))
+     end
+   end
+end
+function refresh()
+   load("main.lua")
+   print('refres ')
+end
+
 local world = {} -- the empty world-state
 
 camera = {}
@@ -55,13 +77,6 @@ function love.load()
     player = { x = 200, y = 200, speed = 150, img = nil }
     player.img = love.graphics.newImage('img/player.png')
 
-    udp = socket.udp()
-    udp:settimeout(0)
-    udp:setpeername(address, port)
-    local dg = string.format("%s %s %d %d", entity, 'at', 320, 240)
-    udp:send(dg) -- the magic line in question.
-    -- t is just a variable we use to help us with the update rate in love.update.
-
     x, y, w, h = 20, 20, 60, 20;
 g = 1;
 
@@ -81,26 +96,37 @@ function love.update(dt)
   	end
   end
 
-  if love.keyboard.isDown('up','aw') then
-  	if player.y > 0 then -- binds us to the map
+  if love.keyboard.isDown('up','w') then
+  	--if player.y > 0 then -- binds us to the map
   		player.y = player.y - (player.speed*dt)
-  	end
+  	--end
   elseif love.keyboard.isDown('down','s') then
-  	if player.y < (love.graphics.getHeight() - player.img:getHeight()) then
+  	--if player.y < (love.graphics.getHeight() - player.img:getHeight()) then
   		player.y = player.y + (player.speed*dt)
-  	end
+  	--end
+  end
+
+  --zoom is broken
+  if love.keyboard.isDown('-') then
+    g = g - 0.01
+  elseif love.keyboard.isDown('=') then
+    g = g + 0.01
+  else
+    g = g
   end
 
     camera:scale(g) -- zoom by 3
-    --spacex = love.graphics.getHeight() - player.img:getHeight()
-    camera:setPosition(player.x, player.y)
+    spacex = (player.img:getHeight()/2) - (love.graphics.getHeight()/2)
+    spacey = (player.img:getWidth()/2) - (love.graphics.getWidth()/2)
+
+    camera:setPosition(player.x+spacey, player.y+spacex)
     --g = g + 0.001;
 end
 
 -- Draw a coloured rectangle.
 function love.draw()
     camera:set()
-    love.graphics.setColor(0, 88, 100);
+    love.graphics.setColor(0, 88, 200);
     love.graphics.rectangle('fill', x, y, w, h);
     love.graphics.rectangle('fill', 80, 80, w, h);
     love.graphics.rectangle('fill', 250, 250, w, h);
