@@ -1,26 +1,10 @@
 debug = true
 
-love.graphics.setBackgroundColor( 0, 10, 20 )
+--load in lick for better development
+lick = require "resources.lick"
+lick.reset = true
 
-local function load(filename)
-   local ok, chunk, result
-   ok, chunk = pcall( love.filesystem.load, filename ) -- load the chunk safely
-   if not ok then
-     print('The following error happened1: ' .. tostring(chunk))
-   else
-     ok, result = pcall(chunk) -- execute the chunk safely
-
-     if not ok then -- will be false if there is an error
-      print('The following error happened2: ' .. tostring(result))
-     else
-      print('The result of loading is: ' .. tostring(result))
-     end
-   end
-end
-function refresh()
-   load("main.lua")
-   print('refres ')
-end
+love.graphics.setBackgroundColor( 0, 10, 25 )
 
 local world = {} -- the empty world-state
 
@@ -71,6 +55,8 @@ function camera:mousePosition()
   return love.mouse.getX() * self.scaleX + self.x, love.mouse.getY() * self.scaleY + self.y
 end
 
+--camera.lua require("camera")
+
 -- Load some default values for our rectangle.
 function love.load()
 
@@ -87,33 +73,33 @@ end
 function love.update(dt)
 
   if love.keyboard.isDown('left','a') then
-  	if player.x > 0 then -- binds us to the map
-  		player.x = player.x - (player.speed*dt)
-  	end
+    --if player.x > 0 then -- binds us to the map
+      player.x = player.x - (player.speed*dt)
+    --end
   elseif love.keyboard.isDown('right','d') then
-  	if player.x < (love.graphics.getWidth() - player.img:getWidth()) then
-  		player.x = player.x + (player.speed*dt)
-  	end
+    --if player.x < (love.graphics.getWidth() - player.img:getWidth()) then
+      player.x = player.x + (player.speed*dt)
+    --end
   end
 
   if love.keyboard.isDown('up','w') then
-  	--if player.y > 0 then -- binds us to the map
-  		player.y = player.y - (player.speed*dt)
-  	--end
+    --if player.y > 0 then -- binds us to the map
+      player.y = player.y - (player.speed*dt)
+    --end
   elseif love.keyboard.isDown('down','s') then
-  	--if player.y < (love.graphics.getHeight() - player.img:getHeight()) then
-  		player.y = player.y + (player.speed*dt)
-  	--end
+    --if player.y < (love.graphics.getHeight() - player.img:getHeight()) then
+      player.y = player.y + (player.speed*dt)
+    --end
   end
 
-  --zoom is broken
-  if love.keyboard.isDown('-') then
-    g = g - 0.01
-  elseif love.keyboard.isDown('=') then
-    g = g + 0.01
-  else
-    g = g
-  end
+    --zoom is broken
+    if love.keyboard.isDown('-') then
+      g = g - 0.01
+    elseif love.keyboard.isDown('=') then
+      g = g + 0.01
+    else
+      g = g
+    end
 
     camera:scale(g) -- zoom by 3
     spacex = (player.img:getHeight()/2) - (love.graphics.getHeight()/2)
@@ -133,5 +119,5 @@ function love.draw()
     love.graphics.setColor(255, 255, 255);
     love.graphics.draw(player.img, player.x, player.y)
     camera:unset()
-
+    --love.graphics.rectangle('fill', 400, 80, w, h); -- gui not set by camera
 end

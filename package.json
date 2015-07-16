@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "bower": "*",
-    "imagemin": "^3.2.0",
     "time-grunt": "*"
   }
 }
