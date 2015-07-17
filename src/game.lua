@@ -1,26 +1,5 @@
+local game = {}
 
-debug = true
-
-gamestate = require "resources.gamestate"
-
---load in lick for better development
-lick = require "resources.lick"
-lick.reset = true
-
---define game states and functions to be included
-menu = require "menu"
---game = require "game"
-
-camera = require "camera"
-
-function love.load()
-    gamestate.registerEvents()
-    --gamestate.switch(menu)
-    gamestate.switch(game)
-end
-
---following to go in game.lua but bellow for development
-game = {}
 -- Load some default values for our rectangle.
 function game:enter()
   love.graphics.setBackgroundColor( 111, 10, 25 )
@@ -58,3 +37,5 @@ function game:draw()
     love.graphics.rectangle('fill', 250, 250, w, h);
     camera:unset()
 end
+
+return game

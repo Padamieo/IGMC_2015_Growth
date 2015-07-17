@@ -5,8 +5,8 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: pkg,
 		copy:{
-	      	build_game:{
-		        files:[{
+			build_game:{
+				files:[{
 					cwd: 'src/',
 					src: ['**'], //'!**/*.{png,jpg,gif}'
 					dest: 'build/',
@@ -16,8 +16,8 @@ module.exports = function(grunt) {
 					filter: 'isFile',
 				}]
 			},
-	      	build_resources:{
-		        files:[{
+	    build_resources:{
+		    files:[{
 					cwd: 'bower_components/',
 					src: [
 						'LICK/lick.lua',
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
 				livereload: true,
 			},
 			copy:{
-				files: ['src/**/**.php','src/**/**.{png,jpg,gif}'],
+				files: ['src/**/*.lua','src/**/**.{png,jpg,gif}'],
 				tasks: ['copy:build_game']
 			}
 		},

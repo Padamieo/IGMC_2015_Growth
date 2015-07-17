@@ -1,3 +1,10 @@
+camera = {}
+camera.x = 0
+camera.y = 0
+camera.scaleX = 1
+camera.scaleY = 1
+camera.rotation = 0
+
 function camera:set()
   love.graphics.push()
   love.graphics.rotate(-self.rotation)
@@ -37,3 +44,5 @@ end
 function camera:mousePosition()
   return love.mouse.getX() * self.scaleX + self.x, love.mouse.getY() * self.scaleY + self.y
 end
+
+return camera
