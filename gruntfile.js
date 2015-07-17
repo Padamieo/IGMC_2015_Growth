@@ -22,7 +22,8 @@ module.exports = function(grunt) {
 					src: [
 						'LICK/lick.lua',
 						'hump/camera.lua',
-						'hump/gamestate.lua'
+						'hump/gamestate.lua',
+						'anim8/anim8.lua'
 					],
 					dest: 'build/resources/',
 					nonull: false,
@@ -38,18 +39,18 @@ module.exports = function(grunt) {
 			},
 			copy:{
 				files: ['src/**/**.php','src/**/**.{png,jpg,gif}'],
-				tasks: ['copy:build_theme_css']
+				tasks: ['copy:build_game']
 			}
 		},
-    	imagemin:{
-			dynamic:{
-	      		files:[{
-					expand: true,
-					cwd: 'src/img/',
-					src: ['**/*.{png,jpg,gif}'],
-					dest: 'build/img/',
-	      		}]
-	    	}
+  	imagemin:{
+		dynamic:{
+      		files:[{
+				expand: true,
+				cwd: 'src/img/',
+				src: ['**/*.{png,jpg,gif}'],
+				dest: 'build/img/',
+      		}]
+    	}
 		}
 	});
 
@@ -68,7 +69,8 @@ module.exports = function(grunt) {
 	]);
 
 	grunt.registerTask('default', [
-		'copy:build_game'
+		'copy:build_game',
+		'watch'
 	]);
 
 };
