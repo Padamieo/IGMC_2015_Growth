@@ -12,6 +12,7 @@ menu = require "menu"
 --game = require "game"
 
 camera = require "camera"
+anim8 = require 'resources.anim8'
 
 function love.load()
     gamestate.registerEvents()
@@ -48,30 +49,37 @@ function game:enter()
   player.shape = love.physics.newRectangleShape(player.image:getWidth(), player.image:getHeight())
   player.fixture = love.physics.newFixture(player.body, player.shape)
 
-
+  image = love.graphics.newImage('img/player_placeholder.png')
+  local g = anim8.newGrid(350, 350, image:getWidth(), image:getHeight())
+  animation = anim8.newAnimation(g('1-8',1), {['1-8']=100})
 end
 
 -- Increase the size of the rectangle every frame.
 function game:update(dt)
 
-  world:update(dt) --this puts the world into motion
+  --physics
+  world:update(dt)
 
   if love.keyboard.isDown('escape') then
     love.event.push("quit")
   end
 
+  --character tontrols gotoFrame problem for animation
   --player.body:applyForce( 0, 0 )
-
   if love.keyboard.isDown('left','a') then
     player.body:setX(player.body:getX() - (player.speed*dt))
+    animation:gotoFrame(7)
   elseif love.keyboard.isDown('right','d') then
-      player.body:setX(player.body:getX() + (player.speed*dt))
+    player.body:setX(player.body:getX() + (player.speed*dt))
+    animation:gotoFrame(3)
   end
 
   if love.keyboard.isDown('up','w') then
       player.body:setY(player.body:getY() - (player.speed*dt))
+      animation:gotoFrame(5)
   elseif love.keyboard.isDown('down','s') then
       player.body:setY(player.body:getY() + (player.speed*dt))
+      animation:gotoFrame(1)
   end
 
   --zoom is broken
@@ -82,21 +90,19 @@ function game:update(dt)
   else
     g = g
   end
+  camera:scale(g)
 
-  camera:scale(g) -- zoom by 3
-
-  camera:scale(g) -- zoom by 3
   spacey = (love.graphics.getHeight()/2)*-1
   spacex = (love.graphics.getWidth()/2)*-1
   camera:setPosition(player.body:getX()+spacex, player.body:getY()+spacey)
 
 end
 
--- Draw a coloured rectangle.
+-- draw to the game state
 function game:draw()
   camera:set()
   love.graphics.setColor(250, 250, 250);
-  --print()
+
   love.graphics.draw(pitch.img, (pitch.img:getHeight()/2)*-0.1, ((pitch.img:getWidth()/2)*-0.1))
 
   love.graphics.setColor(0, 88, 200);
@@ -111,6 +117,8 @@ function game:draw()
 
   love.graphics.setColor(193, 47, 14) --set the drawing color to red for the ball
   love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
+
+  animation:draw(image, 12, 1)
 
   camera:unset()
   --love.graphics.rectangle('fill', 400, 80, w, h); -- gui not set by camera

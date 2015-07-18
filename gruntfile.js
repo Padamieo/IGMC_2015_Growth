@@ -43,7 +43,7 @@ module.exports = function(grunt) {
 			}
 		},
   	imagemin:{
-		dynamic:{
+			dynamic:{
       		files:[{
 				expand: true,
 				cwd: 'src/img/',
@@ -51,6 +51,14 @@ module.exports = function(grunt) {
 				dest: 'build/img/',
       		}]
     	}
+		},
+		sprite:{
+			all: {
+				src: 'temp/*.png',
+				dest: 'src/img/player_placeholder.png',
+        destCss: 'temp/sprites.css',
+				algorithm: 'left-right'
+			}
 		}
 	});
 
@@ -58,6 +66,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-imagemin');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-newer');
+	grunt.loadNpmTasks('grunt-spritesmith');
 
 	grunt.registerTask('build', [
 		'newer:copy:build_game',
@@ -66,6 +75,10 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('update', [
 		'copy:build_game'
+	]);
+
+	grunt.registerTask('spritesheet', [
+		'sprite',
 	]);
 
 	grunt.registerTask('default', [

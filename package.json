@@ -9,7 +9,8 @@
     "grunt-contrib-copy": "*",
     "grunt-contrib-imagemin": "*",
     "grunt-contrib-watch": "*",
-    "grunt-newer": "*"
+    "grunt-newer": "*",
+    "grunt-spritesmith": "*"
   },
   "dependencies": {
     "bower": "*",
