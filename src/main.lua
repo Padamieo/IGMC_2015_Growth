@@ -22,6 +22,11 @@ end
 
 --following to go in game.lua but bellow for development
 game = {}
+
+function orderY(a,b)
+  return a[2] < b[2]
+end
+
 -- Load some default values for our rectangle.
 function game:enter()
   love.graphics.setBackgroundColor( 0, 10, 25 )
@@ -43,7 +48,7 @@ function game:enter()
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
 
-  player = { x = 0, y = 0, speed = 120, image = nil }
+  player = { x = 0, y = 0, speed = 100, image = nil }
   player.image = love.graphics.newImage('img/player.png')
   player.body = love.physics.newBody(world, 0, 0, "dynamic")
   player.shape = love.physics.newRectangleShape(player.image:getWidth(), player.image:getHeight())
@@ -62,11 +67,14 @@ function game:enter()
   pp[4] = {300,450}
   pp[5] = {400,530}
 
+
+
 end
 
 -- Increase the size of the rectangle every frame.
 function game:update(dt)
 
+  table.sort(pp, orderY)
   --physics
   world:update(dt)
 
@@ -77,11 +85,17 @@ function game:update(dt)
   --character tontrols gotoFrame problem for animation
   --player.body:applyForce( 0, 0 )
   if love.keyboard.isDown('left','a') then
+    --player.body:applyForce( -100, 0 )
+    --player.body:setLinearVelocity( -player.speed, 0 )
     player.body:setX(player.body:getX() - (player.speed*dt))
     animation:gotoFrame(7)
   elseif love.keyboard.isDown('right','d') then
+    --player.body:applyForce( 100, 0 )
+    --player.body:setLinearVelocity( player.speed, 0 )
     player.body:setX(player.body:getX() + (player.speed*dt))
     animation:gotoFrame(3)
+  else
+      player.body:setLinearVelocity( 0.9*dt, 0 )
   end
 
   if love.keyboard.isDown('up','w') then
@@ -106,6 +120,8 @@ function game:update(dt)
   spacex = (love.graphics.getWidth()/2)*-1
   camera:setPosition(player.body:getX()+spacex, player.body:getY()+spacey)
 
+  --player.body:applyForce( 0, 0 )
+
 end
 
 -- draw to the game state
@@ -113,10 +129,10 @@ function game:draw()
   camera:set()
   love.graphics.setColor(250, 250, 250);
 
-  love.graphics.draw(pitch.img, (pitch.img:getHeight()/2)*-0.1, ((pitch.img:getWidth()/2)*-0.1))
+  love.graphics.draw(pitch.img, (pitch.img:getWidth()/2)*-1, (pitch.img:getHeight()/2)*-1)
 
   for i,v in ipairs(pp) do
-    love.graphics.draw(p, pp[i][1], pp[i][2])
+    love.graphics.draw(p, pp[i][1] - p:getWidth()/2, pp[i][2]-p:getHeight())
   end
 
   --love.graphics.draw(player.img, player.x, player.y)
