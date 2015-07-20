@@ -43,7 +43,7 @@ function game:enter()
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
 
-  player = { x = 0, y = 0, speed = 80, image = nil }
+  player = { x = 0, y = 0, speed = 120, image = nil }
   player.image = love.graphics.newImage('img/player.png')
   player.body = love.physics.newBody(world, 0, 0, "dynamic")
   player.shape = love.physics.newRectangleShape(player.image:getWidth(), player.image:getHeight())
@@ -52,6 +52,16 @@ function game:enter()
   image = love.graphics.newImage('img/player_placeholder.png')
   local g = anim8.newGrid(350, 350, image:getWidth(), image:getHeight())
   animation = anim8.newAnimation(g('1-8',1), {['1-8']=100})
+
+
+  p = love.graphics.newImage('img/test_image.png')
+  pp = {}
+  pp[1] = {550,370}
+  pp[2] = {220,390}
+  pp[3] = {600,410}
+  pp[4] = {300,450}
+  pp[5] = {400,530}
+
 end
 
 -- Increase the size of the rectangle every frame.
@@ -105,12 +115,10 @@ function game:draw()
 
   love.graphics.draw(pitch.img, (pitch.img:getHeight()/2)*-0.1, ((pitch.img:getWidth()/2)*-0.1))
 
-  love.graphics.setColor(0, 88, 200);
-  love.graphics.rectangle('fill', x, y, w, h);
-  love.graphics.rectangle('fill', 80, 80, w, h);
-  love.graphics.rectangle('fill', 250, 250, w, h);
+  for i,v in ipairs(pp) do
+    love.graphics.draw(p, pp[i][1], pp[i][2])
+  end
 
-  love.graphics.setColor(255, 255, 255);
   --love.graphics.draw(player.img, player.x, player.y)
   love.graphics.draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, player.image:getWidth()/2, player.image:getHeight()/2)
 --  love.graphics.circle("fill", ball.body:getX(), ball.body:getY(), 20)
@@ -118,7 +126,7 @@ function game:draw()
   love.graphics.setColor(193, 47, 14) --set the drawing color to red for the ball
   love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
 
-  animation:draw(image, 12, 1)
+  --animation:draw(image, 12, 1)
 
   camera:unset()
   --love.graphics.rectangle('fill', 400, 80, w, h); -- gui not set by camera
