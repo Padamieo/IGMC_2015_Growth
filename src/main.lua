@@ -58,7 +58,7 @@ function game:enter()
   local g = anim8.newGrid(350, 350, image:getWidth(), image:getHeight())
   animation = anim8.newAnimation(g('1-8',1), {['1-8']=100})
 
-
+  --these will be avatars
   p = love.graphics.newImage('img/test_image.png')
   pp = {}
   pp[1] = {550,370}
@@ -66,8 +66,6 @@ function game:enter()
   pp[3] = {600,410}
   pp[4] = {300,450}
   pp[5] = {400,530}
-
-
 
 end
 
