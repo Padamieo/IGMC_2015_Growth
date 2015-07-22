@@ -50,7 +50,7 @@ function game:enter()
   objects.ball.shape = love.physics.newCircleShape( 20) --the ball's shape has a radius of 20
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
-  objects.ball.fixture:setMass(200000)
+  objects.ball.body:setMass(80)
 
 
     player = { x = 0, y = 0, speed = 100, image = nil }
@@ -84,6 +84,7 @@ function game:enter()
 
 end
 
+--determines distance from figures
 function distance(value,value2)
   d = value - value2
   d = math.abs(d)
@@ -126,6 +127,7 @@ function game:update(dt)
       player.dir = 'down'
   end
 
+  --kick action
   if love.keyboard.isDown('k') then
     --boo = player.body:getAngle()
     --print(boo)
@@ -138,7 +140,7 @@ function game:update(dt)
     yy = distance(yp,yb)
 
     if xx < 500 and yy < 500 then
-      print("bannan factory")
+      print("banana factory")
       xpi = xp*-1
       ypi = yp*-1
 
@@ -147,8 +149,7 @@ function game:update(dt)
       --objects.ball.body:applyForce( 100, 0 )
       --objects.ball.body:applyAngularImpulse( 1000 )
       objects.ball.body:applyLinearImpulse( xpi, ypi )
-    else
-      print("   ")
+
     end
 
   end
@@ -189,6 +190,9 @@ end
 -- draw to the game state
 function game:draw()
   camera:set()
+
+  debugWorldDraw(world,0,0,1920,1920)
+
   love.graphics.setColor(250, 250, 250);
 
   love.graphics.draw(pitch.img, (pitch.img:getWidth()/2)*-1, (pitch.img:getHeight()/2)*-1)
