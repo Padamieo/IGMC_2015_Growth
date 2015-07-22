@@ -27,6 +27,9 @@ function orderY(a,b)
   return a[2] < b[2]
 end
 
+
+
+
 -- Load some default values for our rectangle.
 function game:enter()
   love.graphics.setBackgroundColor( 0, 10, 25 )
@@ -48,15 +51,21 @@ function game:enter()
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
 
-  player = { x = 0, y = 0, speed = 100, image = nil }
-  player.image = love.graphics.newImage('img/player.png')
-  player.body = love.physics.newBody(world, 0, 0, "dynamic")
-  player.shape = love.physics.newRectangleShape(player.image:getWidth(), player.image:getHeight())
-  player.fixture = love.physics.newFixture(player.body, player.shape)
 
-  image = love.graphics.newImage('img/player_placeholder.png')
-  local g = anim8.newGrid(350, 350, image:getWidth(), image:getHeight())
-  animation = anim8.newAnimation(g('1-8',1), {['1-8']=100})
+    player = { x = 0, y = 0, speed = 100, image = nil }
+    --player.image = love.graphics.newImage('img/player.png')
+    player.image = love.graphics.newImage('img/player_placeholder.png');
+    bg = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
+    player.anim = {
+      stand = anim8.newAnimation(bg('1-5', 1), 0.1),
+      down = anim8.newAnimation(bg('5-7', 1), 0.5),
+      up = anim8.newAnimation(bg('6-7', 1), 0.1)
+    }
+
+    player.body = love.physics.newBody(world, 100, 100, "dynamic")
+    --player.shape = love.physics.newRectangleShape(player.image:getWidth(), player.image:getHeight())
+    player.box = love.physics.newRectangleShape(175, 350)
+    player.fixture = love.physics.newFixture(player.body, player.box)
 
   --these will be avatars
   p = love.graphics.newImage('img/test_image.png')
@@ -86,22 +95,21 @@ function game:update(dt)
     --player.body:applyForce( -100, 0 )
     --player.body:setLinearVelocity( -player.speed, 0 )
     player.body:setX(player.body:getX() - (player.speed*dt))
-    animation:gotoFrame(7)
+    player.dir = 'right'
   elseif love.keyboard.isDown('right','d') then
     --player.body:applyForce( 100, 0 )
     --player.body:setLinearVelocity( player.speed, 0 )
     player.body:setX(player.body:getX() + (player.speed*dt))
-    animation:gotoFrame(3)
+    player.dir = 'left'
   else
       player.body:setLinearVelocity( 0.9*dt, 0 )
+      player.dir = ''
   end
 
   if love.keyboard.isDown('up','w') then
       player.body:setY(player.body:getY() - (player.speed*dt))
-      animation:gotoFrame(5)
   elseif love.keyboard.isDown('down','s') then
       player.body:setY(player.body:getY() + (player.speed*dt))
-      animation:gotoFrame(1)
   end
 
   --zoom is broken
@@ -120,6 +128,15 @@ function game:update(dt)
 
   --player.body:applyForce( 0, 0 )
 
+  --update animation
+  if player.dir == 'left' then
+    player.anim.up:update(dt)
+  elseif player.dir == 'right' then
+    player.anim.down:update(dt)
+  else
+    player.anim.stand:update(dt)
+  end
+
 end
 
 -- draw to the game state
@@ -134,13 +151,19 @@ function game:draw()
   end
 
   --love.graphics.draw(player.img, player.x, player.y)
-  love.graphics.draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, player.image:getWidth()/2, player.image:getHeight()/2)
+  --player.anim.stand:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
+
+    if player.dir == 'left' then
+      player.anim.up:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
+    elseif player.dir == 'right' then
+      player.anim.down:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
+    else
+      player.anim.stand:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
+    end
 --  love.graphics.circle("fill", ball.body:getX(), ball.body:getY(), 20)
 
   love.graphics.setColor(193, 47, 14) --set the drawing color to red for the ball
   love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
-
-  --animation:draw(image, 12, 1)
 
   camera:unset()
   --love.graphics.rectangle('fill', 400, 80, w, h); -- gui not set by camera
