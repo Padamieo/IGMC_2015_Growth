@@ -50,6 +50,7 @@ function game:enter()
   objects.ball.shape = love.physics.newCircleShape( 20) --the ball's shape has a radius of 20
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
+  objects.ball.fixture:setMass(200000)
 
 
     player = { x = 0, y = 0, speed = 100, image = nil }
@@ -57,9 +58,14 @@ function game:enter()
     player.image = love.graphics.newImage('img/player_placeholder.png');
     bg = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
     player.anim = {
-      stand = anim8.newAnimation(bg('1-5', 1), 0.1),
-      down = anim8.newAnimation(bg('5-7', 1), 0.5),
-      up = anim8.newAnimation(bg('6-7', 1), 0.1)
+      s = anim8.newAnimation(bg('1-1', 1), 0.1),
+      se = anim8.newAnimation(bg('2-2', 1), 0.1),
+      e = anim8.newAnimation(bg('3-3', 1), 0.1),
+      ne = anim8.newAnimation(bg('4-4', 1), 0.1),
+      n = anim8.newAnimation(bg('5-5', 1), 0.1),
+      nw = anim8.newAnimation(bg('6-6', 1), 0.1),
+      w = anim8.newAnimation(bg('7-7', 1), 0.1),
+      sw = anim8.newAnimation(bg('8-8', 1), 0.1)
     }
 
     player.body = love.physics.newBody(world, 100, 100, "dynamic")
@@ -76,6 +82,12 @@ function game:enter()
   pp[4] = {300,450}
   pp[5] = {400,530}
 
+end
+
+function distance(value,value2)
+  d = value - value2
+  d = math.abs(d)
+  return d
 end
 
 -- Increase the size of the rectangle every frame.
@@ -108,9 +120,40 @@ function game:update(dt)
 
   if love.keyboard.isDown('up','w') then
       player.body:setY(player.body:getY() - (player.speed*dt))
+      player.dir = 'up'
   elseif love.keyboard.isDown('down','s') then
       player.body:setY(player.body:getY() + (player.speed*dt))
+      player.dir = 'down'
   end
+
+  if love.keyboard.isDown('k') then
+    --boo = player.body:getAngle()
+    --print(boo)
+
+    xp, yp = player.body:getPosition( )
+    xb, yb = objects.ball.body:getPosition( )
+    --objects.ball.body:applyForce( 100, 0 )
+
+    xx = distance(xp,xb)
+    yy = distance(yp,yb)
+
+    if xx < 500 and yy < 500 then
+      print("bannan factory")
+      xpi = xp*-1
+      ypi = yp*-1
+
+      vv = objects.ball.body:getMass()
+      print(v)
+      --objects.ball.body:applyForce( 100, 0 )
+      --objects.ball.body:applyAngularImpulse( 1000 )
+      objects.ball.body:applyLinearImpulse( xpi, ypi )
+    else
+      print("   ")
+    end
+
+  end
+
+
 
   --zoom is broken
   if love.keyboard.isDown('-') then
@@ -130,11 +173,15 @@ function game:update(dt)
 
   --update animation
   if player.dir == 'left' then
-    player.anim.up:update(dt)
+    player.anim.w:update(dt)
   elseif player.dir == 'right' then
-    player.anim.down:update(dt)
+    player.anim.e:update(dt)
+  elseif player.dir == 'up' then
+    player.anim.n:update(dt)
+  elseif player.dir == 'down' then
+    player.anim.s:update(dt)
   else
-    player.anim.stand:update(dt)
+    player.anim.s:update(dt)
   end
 
 end
@@ -154,12 +201,18 @@ function game:draw()
   --player.anim.stand:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
 
     if player.dir == 'left' then
-      player.anim.up:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
+      player.anim.w:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
     elseif player.dir == 'right' then
-      player.anim.down:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
+      player.anim.e:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+    elseif player.dir == 'up' then
+      player.anim.n:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+    elseif player.dir == 'down' then
+      player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
     else
-      player.anim.stand:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
+      player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
     end
+
+
 --  love.graphics.circle("fill", ball.body:getX(), ball.body:getY(), 20)
 
   love.graphics.setColor(193, 47, 14) --set the drawing color to red for the ball
