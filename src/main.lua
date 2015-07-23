@@ -35,7 +35,6 @@ function game:enter()
   love.graphics.setBackgroundColor( 0, 10, 25 )
 
   x, y, w, h = 20, 20, 60, 20;
-  g = 1
 
   world = {}
   world = love.physics.newWorld(0, 0, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
@@ -50,7 +49,7 @@ function game:enter()
   objects.ball.shape = love.physics.newCircleShape( 20) --the ball's shape has a radius of 20
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
-  objects.ball.body:setMass(80)
+  objects.ball.body:setMass(0.6)
 
 
     player = { x = 0, y = 0, speed = 100, image = nil }
@@ -91,7 +90,7 @@ function distance(value,value2)
   return d
 end
 
--- Increase the size of the rectangle every frame.
+--Increase the size of the rectangle every frame.
 function game:update(dt)
 
   table.sort(pp, orderY)
@@ -102,30 +101,48 @@ function game:update(dt)
     love.event.push("quit")
   end
 
+  --allowing for user entered controlls later
+  keyboard_set = {
+    s = 'down',
+    e = 'right',
+    n = 'up',
+    w = 'left'
+  }
+
   --character tontrols gotoFrame problem for animation
   --player.body:applyForce( 0, 0 )
   if love.keyboard.isDown('left','a') then
     --player.body:applyForce( -100, 0 )
     --player.body:setLinearVelocity( -player.speed, 0 )
     player.body:setX(player.body:getX() - (player.speed*dt))
-    player.dir = 'right'
+
+    if love.keyboard.isDown('up','w') then
+      player.dir = 'nw'
+    elseif love.keyboard.isDown('down','s') then
+      player.dir = 'sw'
+    else
+      player.dir = 'w'
+    end
+
   elseif love.keyboard.isDown('right','d') then
     --player.body:applyForce( 100, 0 )
     --player.body:setLinearVelocity( player.speed, 0 )
     player.body:setX(player.body:getX() + (player.speed*dt))
-    player.dir = 'left'
+    player.dir = 'e'
   else
       player.body:setLinearVelocity( 0.9*dt, 0 )
       player.dir = ''
+
   end
 
   if love.keyboard.isDown('up','w') then
       player.body:setY(player.body:getY() - (player.speed*dt))
-      player.dir = 'up'
+      player.dir = 'n'
   elseif love.keyboard.isDown('down','s') then
       player.body:setY(player.body:getY() + (player.speed*dt))
-      player.dir = 'down'
+      player.dir = 's'
   end
+
 
   --kick action
   if love.keyboard.isDown('k') then
@@ -145,15 +162,14 @@ function game:update(dt)
       ypi = yp*-1
 
       vv = objects.ball.body:getMass()
-      print(v)
+      print(vv)
       --objects.ball.body:applyForce( 100, 0 )
       --objects.ball.body:applyAngularImpulse( 1000 )
-      objects.ball.body:applyLinearImpulse( xpi, ypi )
+      objects.ball.body:applyLinearImpulse( xpi, ypi ) --this is definatly wrong
 
     end
 
   end
-
 
 
   --zoom is broken
@@ -173,25 +189,34 @@ function game:update(dt)
   --player.body:applyForce( 0, 0 )
 
   --update animation
-  if player.dir == 'left' then
+  if player.dir == 'w' then
     player.anim.w:update(dt)
-  elseif player.dir == 'right' then
+  elseif player.dir == 'e' then
     player.anim.e:update(dt)
-  elseif player.dir == 'up' then
+  elseif player.dir == 'n' then
     player.anim.n:update(dt)
-  elseif player.dir == 'down' then
+  elseif player.dir == 's' then
     player.anim.s:update(dt)
+  end
+
+  if player.dir == 'sw' then
+    player.anim.sw:update(dt)
+  elseif player.dir == 'nw' then
+    player.anim.nw:update(dt)
+  elseif player.dir == 'se' then
+    player.anim.se:update(dt)
+  elseif player.dir == 'ne' then
+    player.anim.ne:update(dt)
   else
     player.anim.s:update(dt)
   end
+
 
 end
 
 -- draw to the game state
 function game:draw()
   camera:set()
-
-  debugWorldDraw(world,0,0,1920,1920)
 
   love.graphics.setColor(250, 250, 250);
 
@@ -204,14 +229,23 @@ function game:draw()
   --love.graphics.draw(player.img, player.x, player.y)
   --player.anim.stand:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
 
-    if player.dir == 'left' then
+    if player.dir == 'w' then
       player.anim.w:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
-    elseif player.dir == 'right' then
+    elseif player.dir == 'e' then
       player.anim.e:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
-    elseif player.dir == 'up' then
+    elseif player.dir == 'n' then
       player.anim.n:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
-    elseif player.dir == 'down' then
+    elseif player.dir == 's' then
       player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+
+    elseif player.dir == 'sw' then
+      player.anim.sw:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+    elseif player.dir == 'se' then
+      player.anim.se:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+    elseif player.dir == 'nw' then
+      player.anim.nw:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+    elseif player.dir == 'ne' then
+      player.anim.ne:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
     else
       player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
     end
