@@ -23,11 +23,17 @@ end
 --following to go in game.lua but bellow for development
 game = {}
 
+-- orders y depth
 function orderY(a,b)
   return a[2] < b[2]
 end
 
-
+--determines distance from figures
+function distance(value,value2)
+  d = value - value2
+  d = math.abs(d)
+  return d
+end
 
 
 -- Load some default values for our rectangle.
@@ -51,6 +57,17 @@ function game:enter()
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
   objects.ball.body:setMass(0.6)
 
+--[[
+--probably needs to be rectangle
+  objects.wall = {}
+  objects.wall.body = love.physics.newBody(world, 1080, 200, "dynamic")
+  objects.wall.shape = love.physics.newEdgeShape( 1080, 600, 1080, -600 )
+  objects.wall.fixture = love.physics.newFixture(objects.wall.body, objects.wall.shape, 1)
+  objects.wall.fixture:setRestitution(0.9)
+  objects.wall.body:setMass(0.6)
+--]]
+
+
 
     player = { x = 0, y = 0, speed = 100, image = nil }
     --player.image = love.graphics.newImage('img/player.png')
@@ -58,13 +75,13 @@ function game:enter()
     bg = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
     player.anim = {
       s = anim8.newAnimation(bg('1-1', 1), 0.1),
-      se = anim8.newAnimation(bg('2-2', 1), 0.1),
+        se = anim8.newAnimation(bg('2-2', 1), 0.1),
       e = anim8.newAnimation(bg('3-3', 1), 0.1),
-      ne = anim8.newAnimation(bg('4-4', 1), 0.1),
+        ne = anim8.newAnimation(bg('4-4', 1), 0.1),
       n = anim8.newAnimation(bg('5-5', 1), 0.1),
-      nw = anim8.newAnimation(bg('6-6', 1), 0.1),
+        nw = anim8.newAnimation(bg('6-6', 1), 0.1),
       w = anim8.newAnimation(bg('7-7', 1), 0.1),
-      sw = anim8.newAnimation(bg('8-8', 1), 0.1)
+        sw = anim8.newAnimation(bg('8-8', 1), 0.1)
     }
 
     player.body = love.physics.newBody(world, 100, 100, "dynamic")
@@ -81,13 +98,6 @@ function game:enter()
   pp[4] = {300,450}
   pp[5] = {400,530}
 
-end
-
---determines distance from figures
-function distance(value,value2)
-  d = value - value2
-  d = math.abs(d)
-  return d
 end
 
 --Increase the size of the rectangle every frame.
@@ -112,17 +122,11 @@ function game:update(dt)
   --character tontrols gotoFrame problem for animation
   --player.body:applyForce( 0, 0 )
   if love.keyboard.isDown('left','a') then
+
     --player.body:applyForce( -100, 0 )
     --player.body:setLinearVelocity( -player.speed, 0 )
     player.body:setX(player.body:getX() - (player.speed*dt))
-
-    if love.keyboard.isDown('up','w') then
-      player.dir = 'nw'
-    elseif love.keyboard.isDown('down','s') then
-      player.dir = 'sw'
-    else
-      player.dir = 'w'
-    end
+    player.dir = 'w'
 
   elseif love.keyboard.isDown('right','d') then
     --player.body:applyForce( 100, 0 )
@@ -130,8 +134,8 @@ function game:update(dt)
     player.body:setX(player.body:getX() + (player.speed*dt))
     player.dir = 'e'
   else
-      player.body:setLinearVelocity( 0.9*dt, 0 )
-      player.dir = ''
+    player.body:setLinearVelocity( 0.9*dt, 0 )
+    player.dir = ''
 
   end
 
@@ -197,16 +201,6 @@ function game:update(dt)
     player.anim.n:update(dt)
   elseif player.dir == 's' then
     player.anim.s:update(dt)
-  end
-
-  if player.dir == 'sw' then
-    player.anim.sw:update(dt)
-  elseif player.dir == 'nw' then
-    player.anim.nw:update(dt)
-  elseif player.dir == 'se' then
-    player.anim.se:update(dt)
-  elseif player.dir == 'ne' then
-    player.anim.ne:update(dt)
   else
     player.anim.s:update(dt)
   end
@@ -237,21 +231,11 @@ function game:draw()
       player.anim.n:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
     elseif player.dir == 's' then
       player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
-
-    elseif player.dir == 'sw' then
-      player.anim.sw:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
-    elseif player.dir == 'se' then
-      player.anim.se:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
-    elseif player.dir == 'nw' then
-      player.anim.nw:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
-    elseif player.dir == 'ne' then
-      player.anim.ne:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
     else
       player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
     end
 
-
---  love.graphics.circle("fill", ball.body:getX(), ball.body:getY(), 20)
+    --love.graphics.rectangle('fill', player.body:getX(), player.body:getY(), 10, 10);
 
   love.graphics.setColor(193, 47, 14) --set the drawing color to red for the ball
   love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
