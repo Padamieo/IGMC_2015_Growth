@@ -65,9 +65,7 @@ function game:enter()
   objects.wall.fixture = love.physics.newFixture(objects.wall.body, objects.wall.shape, 1)
   objects.wall.fixture:setRestitution(0.9)
   objects.wall.body:setMass(0.6)
---]]
-
-
+]]--
 
     player = { x = 0, y = 0, speed = 100, image = nil }
     --player.image = love.graphics.newImage('img/player.png')
@@ -88,6 +86,12 @@ function game:enter()
     --player.shape = love.physics.newRectangleShape(player.image:getWidth(), player.image:getHeight())
     player.box = love.physics.newRectangleShape(175, 350)
     player.fixture = love.physics.newFixture(player.body, player.box)
+
+
+
+    yes = { x = 0, y = 0, speed = 100, image = nil }
+    --player.image = love.graphics.newImage('img/player.png')
+    yes.image = love.graphics.newImage('img/test.png');
 
   --these will be avatars
   p = love.graphics.newImage('img/test_image.png')
@@ -134,7 +138,7 @@ function game:update(dt)
     player.body:setX(player.body:getX() + (player.speed*dt))
     player.dir = 'e'
   else
-    player.body:setLinearVelocity( 0.9*dt, 0 )
+    --player.body:setLinearVelocity( 0.9*dt, 0 )
     player.dir = ''
 
   end
@@ -160,16 +164,19 @@ function game:update(dt)
     xx = distance(xp,xb)
     yy = distance(yp,yb)
 
+    angle = math.atan2(yp - yb, xp - xb)
+    --print(angle)
+
+
     if xx < 500 and yy < 500 then
       print("banana factory")
-      xpi = xp*-1
-      ypi = yp*-1
+      xf = math.sin(math.rad(angle)) * 1
+      yf = math.cos(math.rad(angle)) * 1
+      print(xf)
 
-      vv = objects.ball.body:getMass()
-      print(vv)
-      --objects.ball.body:applyForce( 100, 0 )
-      --objects.ball.body:applyAngularImpulse( 1000 )
-      objects.ball.body:applyLinearImpulse( xpi, ypi ) --this is definatly wrong
+      objects.ball.body:applyForce( yf, xf )
+      --objects.ball.body:applyAngularImpulse( angle )
+      --objects.ball.body:applyLinearImpulse( xpi, ypi ) --this is definatly wrong
 
     end
 
@@ -188,8 +195,8 @@ function game:update(dt)
 
   spacey = (love.graphics.getHeight()/2)*-1
   spacex = (love.graphics.getWidth()/2)*-1
-  camera:setPosition(player.body:getX()+spacex, player.body:getY()+spacey)
-
+  --camera:setPosition(player.body:getX()+spacex, player.body:getY()+spacey)
+  camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
   --player.body:applyForce( 0, 0 )
 
   --update animation
@@ -219,6 +226,8 @@ function game:draw()
   for i,v in ipairs(pp) do
     love.graphics.draw(p, pp[i][1] - p:getWidth()/2, pp[i][2]-p:getHeight())
   end
+
+  love.graphics.draw(yes.image, 1, 1)
 
   --love.graphics.draw(player.img, player.x, player.y)
   --player.anim.stand:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
