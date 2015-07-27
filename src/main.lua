@@ -42,6 +42,8 @@ function game:enter()
 
   x, y, w, h = 20, 20, 60, 20;
 
+  g = 1
+
   world = {}
   world = love.physics.newWorld(0, 0, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
   --let's create a ball
@@ -182,16 +184,30 @@ function game:update(dt)
 
   end
 
+  --zoom in and out good start, It needs to be based on distance
+  xp, yp = player.body:getPosition( )
+  xb, yb = objects.ball.body:getPosition( )
+  xd = distance(xp,xb)
+  yd = distance(yp,yb)
+  width = love.graphics.getWidth( )
+  width = width/2
 
-  --zoom is broken
-  if love.keyboard.isDown('-') then
-    g = g - 0.01
-  elseif love.keyboard.isDown('=') then
-    g = g + 0.01
+  if width < xd then
+    if g < 2 then
+      g = g + dt
+    else
+      g = 2
+    end
   else
-    g = g
+    if g > 1 then
+      g = g - dt
+    else
+      g = 1
+    end
   end
-  camera:scale(g)
+
+  camera:setScale(g, g)
+
 
   spacey = (love.graphics.getHeight()/2)*-1
   spacex = (love.graphics.getWidth()/2)*-1
