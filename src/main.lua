@@ -25,7 +25,7 @@ game = {}
 
 -- orders y depth
 function orderY(a,b)
-  return a[2] < b[2]
+  return a.body:getY() < b.body:getY()
 end
 
 --determines distance from figures
@@ -38,9 +38,8 @@ end
 
 -- Load some default values for our rectangle.
 function game:enter()
-  love.graphics.setBackgroundColor( 0, 10, 25 )
 
-  x, y, w, h = 20, 20, 60, 20;
+  love.graphics.setBackgroundColor( 0, 10, 25 )
 
   g = 1
 
@@ -69,47 +68,43 @@ function game:enter()
   objects.wall.body:setMass(0.6)
 ]]--
 
-    player = { x = 0, y = 0, speed = 100, image = nil }
-    --player.image = love.graphics.newImage('img/player.png')
-    player.image = love.graphics.newImage('img/player_placeholder.png');
-    bg = anim8.newGrid(350, 350, player.image:getWidth(), player.image:getHeight())
-    player.anim = {
-      s = anim8.newAnimation(bg('1-1', 1), 0.1),
-        se = anim8.newAnimation(bg('2-2', 1), 0.1),
-      e = anim8.newAnimation(bg('3-3', 1), 0.1),
-        ne = anim8.newAnimation(bg('4-4', 1), 0.1),
-      n = anim8.newAnimation(bg('5-5', 1), 0.1),
-        nw = anim8.newAnimation(bg('6-6', 1), 0.1),
-      w = anim8.newAnimation(bg('7-7', 1), 0.1),
-        sw = anim8.newAnimation(bg('8-8', 1), 0.1)
+  character = {}
+    character[1] = {x = 100, y = 100, c = "K"}
+    character[2] = {x = -100, y = -100, c = 1}
+
+  player = {}
+  bg = {}
+
+  for i,v in ipairs(character) do
+    player[i] = { x = character[i].x, y = character[i].y, c = character[i].c, speed = 100, image = nil }
+    player[i].image = love.graphics.newImage('img/player_placeholder.png');
+    bg[i] = anim8.newGrid(350, 350, player[i].image:getWidth(), player[i].image:getHeight())
+    player[i].anim = {
+      s = anim8.newAnimation(bg[i]('1-1', 1), 0.1),
+        se = anim8.newAnimation(bg[i]('2-2', 1), 0.1),
+      e = anim8.newAnimation(bg[i]('3-3', 1), 0.1),
+        ne = anim8.newAnimation(bg[i]('4-4', 1), 0.1),
+      n = anim8.newAnimation(bg[i]('5-5', 1), 0.1),
+        nw = anim8.newAnimation(bg[i]('6-6', 1), 0.1),
+      w = anim8.newAnimation(bg[i]('7-7', 1), 0.1),
+        sw = anim8.newAnimation(bg[i]('8-8', 1), 0.1)
     }
-
-    player.body = love.physics.newBody(world, 100, 100, "dynamic")
-    --player.shape = love.physics.newRectangleShape(player.image:getWidth(), player.image:getHeight())
-    player.box = love.physics.newRectangleShape(175, 350)
-    player.fixture = love.physics.newFixture(player.body, player.box)
-
+    player[i].body = love.physics.newBody(world, player[i].x, player[i].y, "dynamic")
+    player[i].box = love.physics.newRectangleShape(175, 350)
+    player[i].fixture = love.physics.newFixture(player[i].body, player[i].box)
+  end
 
 
     yes = { x = 0, y = 0, speed = 100, image = nil }
     --player.image = love.graphics.newImage('img/player.png')
     yes.image = love.graphics.newImage('img/test.png');
 
-  --these will be avatars
-  p = love.graphics.newImage('img/test_image.png')
-  pp = {}
-  pp[1] = {550,370}
-  pp[2] = {220,390}
-  pp[3] = {600,410}
-  pp[4] = {300,450}
-  pp[5] = {400,530}
-
 end
 
 --Increase the size of the rectangle every frame.
 function game:update(dt)
 
-  table.sort(pp, orderY)
+  table.sort(player, orderY)
   --physics
   world:update(dt)
 
@@ -125,74 +120,76 @@ function game:update(dt)
     w = 'left'
   }
 
-  --character tontrols gotoFrame problem for animation
-  --player.body:applyForce( 0, 0 )
-  if love.keyboard.isDown('left','a') then
+  for i,v in ipairs(player) do
 
-    --player.body:applyForce( -100, 0 )
-    --player.body:setLinearVelocity( -player.speed, 0 )
-    player.body:setX(player.body:getX() - (player.speed*dt))
-    player.dir = 'w'
+    if player[i].c == "K" then
+      --movement for keyboard character
+      if love.keyboard.isDown('left','a') then
+        --player.body:applyForce( -100, 0 )
+        --player.body:setLinearVelocity( -player.speed, 0 )
+        player[i].body:setX(player[i].body:getX() - (player[i].speed*dt))
+        player[i].dir = 'w'
+      elseif love.keyboard.isDown('right','d') then
+        --player.body:applyForce( 100, 0 )
+        --player.body:setLinearVelocity( player.speed, 0 )
+        player[i].body:setX(player[i].body:getX() + (player[i].speed*dt))
+        player[i].dir = 'e'
+      else
+        --player.body:setLinearVelocity( 0.9*dt, 0 )
+        player[i].dir = ''
+      end
 
-  elseif love.keyboard.isDown('right','d') then
-    --player.body:applyForce( 100, 0 )
-    --player.body:setLinearVelocity( player.speed, 0 )
-    player.body:setX(player.body:getX() + (player.speed*dt))
-    player.dir = 'e'
-  else
-    --player.body:setLinearVelocity( 0.9*dt, 0 )
-    player.dir = ''
+      if love.keyboard.isDown('up','w') then
+          player[i].body:setY(player[i].body:getY() - (player[i].speed*dt))
+          player[i].dir = 'n'
+      elseif love.keyboard.isDown('down','s') then
+          player[i].body:setY(player[i].body:getY() + (player[i].speed*dt))
+          player[i].dir = 's'
+      end
+      --movement end
 
-  end
+      --kick action
+      if love.keyboard.isDown('k') then
+        --boo = player.body:getAngle()
+        --print(boo)
 
-  if love.keyboard.isDown('up','w') then
-      player.body:setY(player.body:getY() - (player.speed*dt))
-      player.dir = 'n'
-  elseif love.keyboard.isDown('down','s') then
-      player.body:setY(player.body:getY() + (player.speed*dt))
-      player.dir = 's'
-  end
+        xp, yp = player[i].body:getPosition( )
+        xb, yb = objects.ball.body:getPosition( )
+        --objects.ball.body:applyForce( 100, 0 )
 
+        xx = distance(xp,xb)
+        yy = distance(yp,yb)
 
-  --kick action
-  if love.keyboard.isDown('k') then
-    --boo = player.body:getAngle()
-    --print(boo)
+        angle = math.atan2(yp - yb, xp - xb)
+        --print(angle)
 
-    xp, yp = player.body:getPosition( )
-    xb, yb = objects.ball.body:getPosition( )
-    --objects.ball.body:applyForce( 100, 0 )
+        if xx < 500 and yy < 500 then
+          print("banana factory")
+          xf = math.sin(math.rad(angle)) * 1
+          yf = math.cos(math.rad(angle)) * 1
+          print(xf)
+          objects.ball.body:applyForce( yf, xf )
+          --objects.ball.body:applyAngularImpulse( angle )
+          --objects.ball.body:applyLinearImpulse( xpi, ypi ) --this is definatly wrong
+        end
+      end --kick end
 
-    xx = distance(xp,xb)
-    yy = distance(yp,yb)
-
-    angle = math.atan2(yp - yb, xp - xb)
-    --print(angle)
-
-
-    if xx < 500 and yy < 500 then
-      print("banana factory")
-      xf = math.sin(math.rad(angle)) * 1
-      yf = math.cos(math.rad(angle)) * 1
-      print(xf)
-
-      objects.ball.body:applyForce( yf, xf )
-      --objects.ball.body:applyAngularImpulse( angle )
-      --objects.ball.body:applyLinearImpulse( xpi, ypi ) --this is definatly wrong
-
+    else
+      --xbox360 controller movments for each
     end
 
-  end
+  end--end iteration of players
 
+--[[
   --zoom in and out good start, It needs to be based on distance
   xp, yp = player.body:getPosition( )
   xb, yb = objects.ball.body:getPosition( )
-  xd = distance(xp,xb)
+  width_distance = distance(xp,xb)
   yd = distance(yp,yb)
   width = love.graphics.getWidth( )
   width = width/2
 
-  if width < xd then
+  if width < width_distance then
     if g < 2 then
       g = g + dt
     else
@@ -205,27 +202,33 @@ function game:update(dt)
       g = 1
     end
   end
+  --]]
 
   camera:setScale(g, g)
 
-
   spacey = (love.graphics.getHeight()/2)*-1
   spacex = (love.graphics.getWidth()/2)*-1
-  --camera:setPosition(player.body:getX()+spacex, player.body:getY()+spacey)
-  camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
-  --player.body:applyForce( 0, 0 )
+  --temp camera setup (currency causes jerky follow)
+  for i,v in ipairs(player) do
+    if player[i].c == "K" then
+      camera:setPosition(player[i].body:getX()+spacex, player[i].body:getY()+spacey)
+    end
+  end
+  --camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
 
-  --update animation
-  if player.dir == 'w' then
-    player.anim.w:update(dt)
-  elseif player.dir == 'e' then
-    player.anim.e:update(dt)
-  elseif player.dir == 'n' then
-    player.anim.n:update(dt)
-  elseif player.dir == 's' then
-    player.anim.s:update(dt)
-  else
-    player.anim.s:update(dt)
+  --iteration for players animation direction
+  for i,v in ipairs(player) do
+    if player[i].dir == 'w' then
+      player[i].anim.w:update(dt)
+    elseif player[i].dir == 'e' then
+      player[i].anim.e:update(dt)
+    elseif player[i].dir == 'n' then
+      player[i].anim.n:update(dt)
+    elseif player[i].dir == 's' then
+      player[i].anim.s:update(dt)
+    else
+      player[i].anim.s:update(dt)
+    end
   end
 
 
@@ -239,26 +242,22 @@ function game:draw()
 
   love.graphics.draw(pitch.img, (pitch.img:getWidth()/2)*-1, (pitch.img:getHeight()/2)*-1)
 
-  for i,v in ipairs(pp) do
-    love.graphics.draw(p, pp[i][1] - p:getWidth()/2, pp[i][2]-p:getHeight())
-  end
-
   love.graphics.draw(yes.image, 1, 1)
 
-  --love.graphics.draw(player.img, player.x, player.y)
-  --player.anim.stand:draw(player.image, player.body:getX(), player.body:getY(), player.body:getAngle(),  1, 1, 175, 175)
 
-    if player.dir == 'w' then
-      player.anim.w:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
-    elseif player.dir == 'e' then
-      player.anim.e:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+  for i,v in ipairs(player) do
+    if player[i].dir == 'w' then
+      player[i].anim.w:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
+    elseif player[i].dir == 'e' then
+      player[i].anim.e:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
     elseif player.dir == 'n' then
-      player.anim.n:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+      player[i].anim.n:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
     elseif player.dir == 's' then
-      player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+      player[i].anim.s:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
     else
-      player.anim.s:draw(player.image, player.body:getX(), player.body:getY(), 0,  1, 1, 175, 175)
+      player[i].anim.s:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
     end
+  end
 
     --love.graphics.rectangle('fill', player.body:getX(), player.body:getY(), 10, 10);
 
