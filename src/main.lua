@@ -52,25 +52,33 @@ function game:enter()
 
   objects = {} -- table to hold all our physical objects
   objects.ball = {}
-  objects.ball.body = love.physics.newBody(world, 200, 200, "dynamic") --place the body in the center of the world and make it dynamic, so it can move around
-  objects.ball.shape = love.physics.newCircleShape( 20) --the ball's shape has a radius of 20
+  objects.ball.body = love.physics.newBody(world, 0, 0, "dynamic") --place the body in the center of the world and make it dynamic, so it can move around
+  objects.ball.shape = love.physics.newCircleShape( 20 ) --the ball's shape has a radius of 20
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
-  objects.ball.body:setMass(0.6)
+  objects.ball.body:setMass(0.5)
 
---[[
---probably needs to be rectangle
+
+  --probably needs to be rectangle
   objects.wall = {}
-  objects.wall.body = love.physics.newBody(world, 1080, 200, "dynamic")
-  objects.wall.shape = love.physics.newEdgeShape( 1080, 600, 1080, -600 )
-  objects.wall.fixture = love.physics.newFixture(objects.wall.body, objects.wall.shape, 1)
-  objects.wall.fixture:setRestitution(0.9)
-  objects.wall.body:setMass(0.6)
-]]--
+  objects.wall.body = love.physics.newBody(world, -1480, -0, "static")
+  objects.wall.shape = love.physics.newRectangleShape(0, 0, 10, 1090)
+  objects.wall.fixture = love.physics.newFixture(objects.wall.body, objects.wall.shape, 5) -- A higher density gives it more mass.
 
+  objects.wall2 = {}
+  objects.wall2.body = love.physics.newBody(world, 1480, -0, "static")
+  objects.wall2.shape = love.physics.newRectangleShape(0, 0, 10, 1090)
+  objects.wall2.fixture = love.physics.newFixture(objects.wall2.body, objects.wall2.shape, 5) -- A higher density gives it more mass.
+
+  --define selectable characters
+  characters = {
+    default = { height = 175, width = 350, image = 'img/player_placeholder.png' }
+  }
+
+  --this is roster of listed players
   character = {}
-    character[1] = {x = 100, y = 100, c = "K"}
-    character[2] = {x = -100, y = -100, c = 1}
+    character[1] = {x = 150, y = 0, c = "K", team = 0}
+    character[2] = {x = -150, y = -0, c = 1, team = 1}
 
   player = {}
   bg = {}
@@ -93,11 +101,6 @@ function game:enter()
     player[i].box = love.physics.newRectangleShape(175, 350)
     player[i].fixture = love.physics.newFixture(player[i].body, player[i].box)
   end
-
-
-    yes = { x = 0, y = 0, speed = 100, image = nil }
-    --player.image = love.graphics.newImage('img/player.png')
-    yes.image = love.graphics.newImage('img/test.png');
 
 end
 
@@ -165,8 +168,8 @@ function game:update(dt)
 
         if xx < 500 and yy < 500 then
           print("banana factory")
-          xf = math.sin(math.rad(angle)) * 1
-          yf = math.cos(math.rad(angle)) * 1
+          xf = math.sin(math.rad(angle)) * 20
+          yf = math.cos(math.rad(angle)) * 20
           print(xf)
           objects.ball.body:applyForce( yf, xf )
           --objects.ball.body:applyAngularImpulse( angle )
@@ -242,10 +245,18 @@ function game:draw()
 
   love.graphics.draw(pitch.img, (pitch.img:getWidth()/2)*-1, (pitch.img:getHeight()/2)*-1)
 
-  love.graphics.draw(yes.image, 1, 1)
+  love.graphics.polygon("fill", objects.wall.body:getWorldPoints(objects.wall.shape:getPoints()))
+  love.graphics.polygon("fill", objects.wall2.body:getWorldPoints(objects.wall2.shape:getPoints()))
 
+  local drawn = false -- true when the character has been drawn
 
   for i,v in ipairs(player) do
+
+    if not drawn and player[i].body:getY() > objects.ball.body:getY() then
+        love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
+        drawn = true
+    end
+
     if player[i].dir == 'w' then
       player[i].anim.w:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
     elseif player[i].dir == 'e' then
@@ -257,12 +268,15 @@ function game:draw()
     else
       player[i].anim.s:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
     end
+
   end
 
-    --love.graphics.rectangle('fill', player.body:getX(), player.body:getY(), 10, 10);
+  if not drawn then -- if the person is below all objects it won't be drawn within the for loop
+     love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
+  end
 
-  love.graphics.setColor(193, 47, 14) --set the drawing color to red for the ball
-  love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
+  --love.graphics.setColor(193, 47, 14) --set the drawing color to red for the ball
+
 
   camera:unset()
   --love.graphics.rectangle('fill', 400, 80, w, h); -- gui not set by camera
