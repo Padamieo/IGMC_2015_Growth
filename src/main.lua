@@ -189,12 +189,21 @@ function game:update(dt)
 
         if xx < 500 and yy < 500 then
           print("banana factory")
-          xf = math.sin(math.rad(angle_x)) * 20
-          yf = math.cos(math.rad(angle_y)) * 20
+          angle = math.atan2( yp + yb, xb + xp)
+          print(angle)
+
+          dir =  angle / math.pi * 180
+          print(dir)
+
+          xf = math.sin(dir)
+          yf = math.cos(dir)
+
+          --xf = math.sin(math.rad(angle_x)) * 20
+          --yf = math.cos(math.rad(angle_y)) * 20
           --print(xf)
 
           objects.ball.body:applyForce( xf, yf )
-          --objects.ball.body:applyAngularImpulse( angle )
+          --objects.ball.body:applyAngularImpulse( dir )
           --objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
         end
       end --kick end
