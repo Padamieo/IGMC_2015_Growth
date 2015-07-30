@@ -62,23 +62,44 @@ function game:enter()
   --probably needs to be rectangle
   objects.wall = {}
   objects.wall.body = love.physics.newBody(world, -1480, -0, "static")
-  objects.wall.shape = love.physics.newRectangleShape(0, 0, 10, 1090)
+  objects.wall.shape = love.physics.newRectangleShape(0, 0, 10, 1120)
   objects.wall.fixture = love.physics.newFixture(objects.wall.body, objects.wall.shape, 5) -- A higher density gives it more mass.
 
   objects.wall2 = {}
   objects.wall2.body = love.physics.newBody(world, 1480, -0, "static")
-  objects.wall2.shape = love.physics.newRectangleShape(0, 0, 10, 1090)
+  objects.wall2.shape = love.physics.newRectangleShape(0, 0, 10, 1120)
   objects.wall2.fixture = love.physics.newFixture(objects.wall2.body, objects.wall2.shape, 5) -- A higher density gives it more mass.
+
+  objects.wall3 = {}
+  objects.wall3.body = love.physics.newBody(world, 0, 580, "static")
+  objects.wall3.shape = love.physics.newRectangleShape(0, 0, 2980, 10)
+  objects.wall3.fixture = love.physics.newFixture(objects.wall3.body, objects.wall3.shape, 5) -- A higher density gives it more mass.
+
+  objects.wall4 = {}
+  objects.wall4.body = love.physics.newBody(world, 0, -580, "static")
+  objects.wall4.shape = love.physics.newRectangleShape(0, 0, 2980, 10)
+  objects.wall4.fixture = love.physics.newFixture(objects.wall4.body, objects.wall4.shape, 5) -- A higher density gives it more mass.
+
+  --goals for scoring
+  objects.goal_A = {}
+  objects.goal_A.body = love.physics.newBody(world, 1480, -0, "static")
+  objects.goal_A.shape = love.physics.newRectangleShape(0, 0, 50, 300)
+  objects.goal_A.fixture = love.physics.newFixture(objects.goal_A.body, objects.goal_A.shape, 5) -- A higher density gives it more mass.
+
+  objects.goal_B = {}
+  objects.goal_B.body = love.physics.newBody(world, -1480, -0, "static")
+  objects.goal_B.shape = love.physics.newRectangleShape(0, 0, 50, 300)
+  objects.goal_B.fixture = love.physics.newFixture(objects.goal_B.body, objects.goal_B.shape, 5) -- A higher density gives it more mass.
 
   --define selectable characters
   characters = {
-    default = { height = 175, width = 350, image = 'img/player_placeholder.png' }
+    default = { height = 100, width = 100, image = 'img/player_placeholder.png' }
   }
 
   --this is roster of listed players
   character = {}
-    character[1] = {x = 150, y = 0, c = "K", team = 0}
-    character[2] = {x = -150, y = -0, c = 1, team = 1}
+    character[1] = {x = 300, y = 0, c = "K", team = 0}
+    character[2] = {x = -300, y = -0, c = 1, team = 1}
 
   player = {}
   bg = {}
@@ -98,7 +119,7 @@ function game:enter()
         sw = anim8.newAnimation(bg[i]('8-8', 1), 0.1)
     }
     player[i].body = love.physics.newBody(world, player[i].x, player[i].y, "dynamic")
-    player[i].box = love.physics.newRectangleShape(175, 350)
+    player[i].box = love.physics.newRectangleShape(100, 100)
     player[i].fixture = love.physics.newFixture(player[i].body, player[i].box)
   end
 
@@ -154,7 +175,6 @@ function game:update(dt)
       --kick action
       if love.keyboard.isDown('k') then
         --boo = player.body:getAngle()
-        --print(boo)
 
         xp, yp = player[i].body:getPosition( )
         xb, yb = objects.ball.body:getPosition( )
@@ -163,19 +183,31 @@ function game:update(dt)
         xx = distance(xp,xb)
         yy = distance(yp,yb)
 
-        angle = math.atan2(yp - yb, xp - xb)
+        angle_y = math.atan2(yp,yb)
+        angle_x = math.atan2(xp,xb)
         --print(angle)
 
         if xx < 500 and yy < 500 then
           print("banana factory")
-          xf = math.sin(math.rad(angle)) * 20
-          yf = math.cos(math.rad(angle)) * 20
-          print(xf)
-          objects.ball.body:applyForce( yf, xf )
+          xf = math.sin(math.rad(angle_x)) * 20
+          yf = math.cos(math.rad(angle_y)) * 20
+          --print(xf)
+
+          objects.ball.body:applyForce( xf, yf )
           --objects.ball.body:applyAngularImpulse( angle )
-          --objects.ball.body:applyLinearImpulse( xpi, ypi ) --this is definatly wrong
+          --objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
         end
       end --kick end
+
+      --experiment to determine rotation
+      if love.keyboard.isDown('l') then
+        ang = player[i].body:getAngle()
+        print(ang)
+        new_ang = ang+0.001;
+        player[i].body:setAngle(new_ang)
+      else
+        player[i].body:setAngle(0)
+      end
 
     else
       --xbox360 controller movments for each
@@ -183,9 +215,10 @@ function game:update(dt)
 
   end--end iteration of players
 
---[[
-  --zoom in and out good start, It needs to be based on distance
-  xp, yp = player.body:getPosition( )
+
+  --zoom in and out, good start, It needs to be based on distance
+  --[[
+  xp, yp = player[1].body:getPosition( )
   xb, yb = objects.ball.body:getPosition( )
   width_distance = distance(xp,xb)
   yd = distance(yp,yb)
@@ -205,18 +238,21 @@ function game:update(dt)
       g = 1
     end
   end
-  --]]
+  ]]--
+
 
   camera:setScale(g, g)
 
   spacey = (love.graphics.getHeight()/2)*-1
   spacex = (love.graphics.getWidth()/2)*-1
   --temp camera setup (currency causes jerky follow)
+
   for i,v in ipairs(player) do
     if player[i].c == "K" then
       camera:setPosition(player[i].body:getX()+spacex, player[i].body:getY()+spacey)
     end
   end
+
   --camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
 
   --iteration for players animation direction
@@ -247,6 +283,14 @@ function game:draw()
 
   love.graphics.polygon("fill", objects.wall.body:getWorldPoints(objects.wall.shape:getPoints()))
   love.graphics.polygon("fill", objects.wall2.body:getWorldPoints(objects.wall2.shape:getPoints()))
+  love.graphics.polygon("fill", objects.wall3.body:getWorldPoints(objects.wall3.shape:getPoints()))
+  love.graphics.polygon("fill", objects.wall4.body:getWorldPoints(objects.wall4.shape:getPoints()))
+
+  love.graphics.setColor(250, 50, 50);
+  love.graphics.polygon("fill", objects.goal_A.body:getWorldPoints(objects.goal_A.shape:getPoints()))
+  love.graphics.polygon("fill", objects.goal_B.body:getWorldPoints(objects.goal_B.shape:getPoints()))
+
+  love.graphics.setColor(250, 250, 250);
 
   local drawn = false -- true when the character has been drawn
 
@@ -258,15 +302,15 @@ function game:draw()
     end
 
     if player[i].dir == 'w' then
-      player[i].anim.w:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
+      player[i].anim.w:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), player[i].body:getAngle(),  1, 1, 175, 175)
     elseif player[i].dir == 'e' then
-      player[i].anim.e:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
+      player[i].anim.e:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), player[i].body:getAngle(),  1, 1, 175, 175)
     elseif player.dir == 'n' then
-      player[i].anim.n:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
+      player[i].anim.n:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), player[i].body:getAngle(),  1, 1, 175, 175)
     elseif player.dir == 's' then
-      player[i].anim.s:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
+      player[i].anim.s:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), player[i].body:getAngle(),  1, 1, 175, 175)
     else
-      player[i].anim.s:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), 0,  1, 1, 175, 175)
+      player[i].anim.s:draw(player[i].image, player[i].body:getX(), player[i].body:getY(), player[i].body:getAngle(),  1, 1, 175, 175)
     end
 
   end
