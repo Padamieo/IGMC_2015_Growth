@@ -36,6 +36,55 @@ function distance(value,value2)
 end
 
 
+function beginContact(a, b, coll)
+  local a_name = a:getUserData()
+  local b_name = b:getUserData()
+
+  if a_name == "A" then
+    if b_name == "Ball" then
+      print("A goal")
+      team_a_score = team_a_score + 1
+    end
+  end
+
+  if b_name == "A" then
+    if a_name == "Ball" then
+      print("A goal")
+      team_a_score = team_a_score + 1
+    end
+  end
+
+
+
+  if a_name == "B" then
+    if b_name == "Ball" then
+      print("B goal")
+      team_b_score = team_b_score + 1
+    end
+  end
+
+  if b_name == "B" then
+    if a_name == "Ball" then
+      print("B goal")
+      team_b_score = team_b_score + 1
+    end
+  end
+
+end
+
+function endContact(a, b, coll)
+
+end
+
+function preSolve(a, b, coll)
+
+end
+
+function postSolve(a, b, coll, normalimpulse1, tangentimpulse1, normalimpulse2, tangentimpulse2)
+
+end
+
+
 -- Load some default values for our rectangle.
 function game:enter()
 
@@ -45,6 +94,11 @@ function game:enter()
 
   world = {}
   world = love.physics.newWorld(0, 0, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
+  world:setCallbacks(beginContact, endContact, preSolve, postSolve)
+  --text = "0-0"
+  team_a_score = 0;
+  team_b_score = 0;
+  text = "0 - 0"
   --let's create a ball
 
   pitch = { x = 0, y = 0, img = nil }
@@ -56,8 +110,8 @@ function game:enter()
   objects.ball.shape = love.physics.newCircleShape( 20 ) --the ball's shape has a radius of 20
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
+  objects.ball.fixture:setUserData("Ball")
   objects.ball.body:setMass(0.5)
-
 
   --probably needs to be rectangle
   objects.wall = {}
@@ -85,11 +139,13 @@ function game:enter()
   objects.goal_A.body = love.physics.newBody(world, 1480, -0, "static")
   objects.goal_A.shape = love.physics.newRectangleShape(0, 0, 50, 300)
   objects.goal_A.fixture = love.physics.newFixture(objects.goal_A.body, objects.goal_A.shape, 5) -- A higher density gives it more mass.
+  objects.goal_A.fixture:setUserData("A")
 
   objects.goal_B = {}
   objects.goal_B.body = love.physics.newBody(world, -1480, -0, "static")
   objects.goal_B.shape = love.physics.newRectangleShape(0, 0, 50, 300)
   objects.goal_B.fixture = love.physics.newFixture(objects.goal_B.body, objects.goal_B.shape, 5) -- A higher density gives it more mass.
+  objects.goal_B.fixture:setUserData("B")
 
   --define selectable characters
   characters = {
@@ -128,9 +184,12 @@ end
 --Increase the size of the rectangle every frame.
 function game:update(dt)
 
-  table.sort(player, orderY)
   --physics
   world:update(dt)
+
+  table.sort(player, orderY)
+  text = team_a_score.." - "..team_b_score
+
 
   if love.keyboard.isDown('escape') then
     love.event.push("quit")
@@ -202,9 +261,9 @@ function game:update(dt)
           --yf = math.cos(math.rad(angle_y)) * 20
           --print(xf)
 
-          objects.ball.body:applyForce( xf, yf )
+          --objects.ball.body:applyForce( xf, yf )
           --objects.ball.body:applyAngularImpulse( dir )
-          --objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
+          objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
         end
       end --kick end
 
@@ -333,4 +392,5 @@ function game:draw()
 
   camera:unset()
   --love.graphics.rectangle('fill', 400, 80, w, h); -- gui not set by camera
+  love.graphics.print(text, 10, 10)
 end
