@@ -174,7 +174,7 @@ function game:enter()
       w = anim8.newAnimation(bg[i]('7-7', 1), 0.1),
         sw = anim8.newAnimation(bg[i]('8-8', 1), 0.1)
     }
-    player[i].body = love.physics.newBody(world, player[i].x, player[i].y, "dynamic")
+    player[i].body = love.physics.newBody(world, player[i].x, player[i].y, "static")
     player[i].box = love.physics.newRectangleShape(100, 100)
     player[i].fixture = love.physics.newFixture(player[i].body, player[i].box)
   end
@@ -239,42 +239,53 @@ function game:update(dt)
         xb, yb = objects.ball.body:getPosition( )
         --objects.ball.body:applyForce( 100, 0 )
 
-        xx = distance(xp,xb)
-        yy = distance(yp,yb)
+        xd = distance(xp,xb)
+        yd = distance(yp,yb)
 
-        angle_y = math.atan2(yp,yb)
-        angle_x = math.atan2(xp,xb)
-        --print(angle)
+        f = 100
 
-        if xx < 500 and yy < 500 then
-          print("banana factory")
-          angle = math.atan2( yp + yb, xb + xp)
-          print(angle)
+        d = math.sqrt((xd^2)+(yd^2))
 
-          dir =  angle / math.pi * 180
-          print(dir)
+        if d < 250 then
 
-          xf = math.sin(dir)
-          yf = math.cos(dir)
+          pos = xp - xb
+          print(pos)
 
-          --xf = math.sin(math.rad(angle_x)) * 20
-          --yf = math.cos(math.rad(angle_y)) * 20
-          --print(xf)
+          comp = (yp - yb) / (xp - xb)
 
-          --objects.ball.body:applyForce( xf, yf )
-          --objects.ball.body:applyAngularImpulse( dir )
+          rad = math.atan( comp )
+
+          --ball_mass = objects.ball.body:getMass()
+          --ac = f / ball_mass
+
+          v = f/d
+
+          if pos > 0 then
+            b = -1
+          else
+            b = 1
+          end
+
+          xf = b*math.cos(rad)*v
+          yf = b*math.sin(rad)*v
+
           objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
+
+
         end
       end --kick end
 
       --experiment to determine rotation
       if love.keyboard.isDown('l') then
+        --[[
         ang = player[i].body:getAngle()
         print(ang)
         new_ang = ang+0.001;
         player[i].body:setAngle(new_ang)
-      else
+        ]]--
         player[i].body:setAngle(0)
+      else
+player[i].body:setAngle(0)
       end
 
     else
