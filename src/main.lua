@@ -15,6 +15,7 @@ camera = require "camera"
 anim8 = require 'resources.anim8'
 
 function love.load()
+    dt = 0
     gamestate.registerEvents()
     --gamestate.switch(menu)
     gamestate.switch(game)
@@ -88,9 +89,16 @@ end
 -- Load some default values for our rectangle.
 function game:enter()
 
-  love.graphics.setBackgroundColor( 0, 10, 25 )
+  dt = 0 -- helps with speeding up on auto refresh
 
-  g = 1
+  love.graphics.setBackgroundColor( 0, 10, 25 )
+  --[[
+  h = love.graphics.getHeight()
+  w = love.graphics.getWidth()
+  i = 1920 / w
+  ]]--
+  i = 1;
+  g = i
 
   world = {}
   world = love.physics.newWorld(0, 0, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
@@ -99,7 +107,10 @@ function game:enter()
   team_a_score = 0;
   team_b_score = 0;
   text = "0 - 0"
-  --let's create a ball
+
+  font = love.graphics.newFont("Capture_it.ttf", 15)
+  love.graphics.setFont(font)
+  love.graphics.setNewFont(30)
 
   pitch = { x = 0, y = 0, img = nil }
   pitch.img = love.graphics.newImage('img/pitch.jpeg')
@@ -111,7 +122,8 @@ function game:enter()
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
   objects.ball.fixture:setRestitution(0.9) --let the ball bounce
   objects.ball.fixture:setUserData("Ball")
-  objects.ball.body:setMass(0.5)
+  objects.ball.body:setLinearDamping( 0.4 )
+  objects.ball.body:setMass(0.009)
 
   --probably needs to be rectangle
   objects.wall = {}
@@ -149,13 +161,13 @@ function game:enter()
 
   --define selectable characters
   characters = {
-    default = { height = 100, width = 100, image = 'img/player_placeholder.png' }
+    default = { height = 100, width = 100, kick = 100, image = 'img/player_placeholder.png' }
   }
 
   --this is roster of listed players
   character = {}
-    character[1] = {x = 300, y = 0, c = "K", team = 0}
-    character[2] = {x = -300, y = -0, c = 1, team = 1}
+    character[1] = {x = 300, y = 0, c = "K", team = 0, k = 100}
+    character[2] = {x = -300, y = -0, c = 1, team = 1, k = 100}
 
   player = {}
   bg = {}
@@ -190,10 +202,11 @@ function game:update(dt)
   table.sort(player, orderY)
   text = team_a_score.." - "..team_b_score
 
-
   if love.keyboard.isDown('escape') then
     love.event.push("quit")
   end
+
+  xb, yb = objects.ball.body:getPosition( ) --ball x and y used in everything
 
   --allowing for user entered controlls later
   keyboard_set = {
@@ -236,56 +249,60 @@ function game:update(dt)
         --boo = player.body:getAngle()
 
         xp, yp = player[i].body:getPosition( )
-        xb, yb = objects.ball.body:getPosition( )
-        --objects.ball.body:applyForce( 100, 0 )
 
         xd = distance(xp,xb)
         yd = distance(yp,yb)
 
         f = 100
 
-        d = math.sqrt((xd^2)+(yd^2))
+        dis = math.sqrt((xd^2)+(yd^2))
 
-        if d < 250 then
+        testt = objects.ball.shape:getRadius()
 
-          pos = xp - xb
-          print(pos)
+        if dis < 100 then
 
-          comp = (yp - yb) / (xp - xb)
+          local left_or_right = xp - xb
 
-          rad = math.atan( comp )
+          local comp = (yp - yb) / (xp - xb)
+
+          local rad = math.atan( comp )
 
           --ball_mass = objects.ball.body:getMass()
           --ac = f / ball_mass
 
-          v = f/d
+          local v = f/dis
 
-          if pos > 0 then
-            b = -1
+          if left_or_right > 0 then
+            hemi = -1
           else
-            b = 1
+            hemi = 1
           end
 
-          xf = b*math.cos(rad)*v
-          yf = b*math.sin(rad)*v
+          local xf = hemi*math.cos(rad)*v
+          local yf = hemi*math.sin(rad)*v
 
           objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
-
-
+          --[[
+            local old_radius = objects.ball.shape:getRadius()
+            local new = old_radius*1.1;
+            objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1)
+            objects.ball.body:setMass(0.009)
+            objects.ball.shape:setRadius(new)
+          ]]--
         end
       end --kick end
 
       --experiment to determine rotation
       if love.keyboard.isDown('l') then
         --[[
-        ang = player[i].body:getAngle()
-        print(ang)
-        new_ang = ang+0.001;
-        player[i].body:setAngle(new_ang)
+          ang = player[i].body:getAngle()
+          print(ang)
+          new_ang = ang+0.001;
+          player[i].body:setAngle(new_ang)
         ]]--
         player[i].body:setAngle(0)
       else
-player[i].body:setAngle(0)
+        player[i].body:setAngle(0)
       end
 
     else
@@ -319,11 +336,15 @@ player[i].body:setAngle(0)
   end
   ]]--
 
-
   camera:setScale(g, g)
 
   spacey = (love.graphics.getHeight()/2)*-1
   spacex = (love.graphics.getWidth()/2)*-1
+
+  --depending on ball positon offest
+  xs, yb = objects.ball.body:getPosition( )
+  spacex = spacex-(xs/6)
+
   --temp camera setup (currency causes jerky follow)
 
   for i,v in ipairs(player) do
@@ -332,6 +353,7 @@ player[i].body:setAngle(0)
     end
   end
 
+  --find way to soften follow of camera maybe add delay
   --camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
 
   --iteration for players animation direction
@@ -348,7 +370,6 @@ player[i].body:setAngle(0)
       player[i].anim.s:update(dt)
     end
   end
-
 
 end
 
@@ -399,7 +420,6 @@ function game:draw()
   end
 
   --love.graphics.setColor(193, 47, 14) --set the drawing color to red for the ball
-
 
   camera:unset()
   --love.graphics.rectangle('fill', 400, 80, w, h); -- gui not set by camera
