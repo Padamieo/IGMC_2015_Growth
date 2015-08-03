@@ -14,8 +14,10 @@ menu = require "menu"
 camera = require "camera"
 anim8 = require 'resources.anim8'
 
+
 function love.load()
     dt = 0
+    p1joystick = nil
     gamestate.registerEvents()
     --gamestate.switch(menu)
     gamestate.switch(game)
@@ -34,6 +36,11 @@ function distance(value,value2)
   d = value - value2
   d = math.abs(d)
   return d
+end
+
+function love.joystickadded(joystick)
+    p1joystick = joystick
+    print("joystic")
 end
 
 function kick(player)
@@ -221,8 +228,6 @@ function game:enter()
 
   for i,v in ipairs(roster) do
 
-    print()
-
     player[i] = { x = roster[i].x, y = roster[i].y, c = roster[i].c, speed = characters[roster[i].char].speed, image = nil }
     player[i].image = love.graphics.newImage(characters[roster[i].char].image);
     bg[i] = anim8.newGrid(350, 350, player[i].image:getWidth(), player[i].image:getHeight())
@@ -313,11 +318,36 @@ function game:update(dt)
 
     else
       --xbox360 controller movments for each
+      if p1joystick ~= nil then
 
+        local x = p1joystick:getGamepadAxis("leftx")
+        if x > 0.2 then
+          player[i].body:setX(player[i].body:getX() + (player[i].speed*dt))
+          player[i].dir = 'e'
+        elseif x < -0.2 then
+          player[i].body:setX(player[i].body:getX() - (player[i].speed*dt))
+          player[i].dir = 'w'
+        else
+          player[i].dir = ''
+        end
+
+        local y = p1joystick:getGamepadAxis("lefty")
+        if y > 0.2 then
+          player[i].body:setY(player[i].body:getY() + (player[i].speed*dt))
+          player[i].dir = 's'
+        elseif y < -0.2 then
+          player[i].body:setY(player[i].body:getY() - (player[i].speed*dt))
+          player[i].dir = 'n'
+        end
+
+        if p1joystick:getGamepadAxis("triggerright") > 0.2 then
+          kick(player[i])
+        end
+
+      end
     end
 
   end--end iteration of players
-
 
   --zoom in and out, good start, It needs to be based on distance
   --[[
@@ -343,27 +373,28 @@ function game:update(dt)
   end
   ]]--
 
-
-
   local spacey = (love.graphics.getHeight()/2)*-1
+  --print(spacey)
+  --spacey = -400
   local spacex = (love.graphics.getWidth()/2)*-1
-
+  --spacex = -700
   --depending on ball positon offest
   xs, yb = objects.ball.body:getPosition( )
   spacex = spacex-(xs/6)
 
   --temp camera setup (currency causes jerky follow)
 
+  --[[
   for i,v in ipairs(player) do
     if player[i].c == "K" then
       camera:setPosition(player[i].body:getX()+spacex, player[i].body:getY()+spacey)
     end
   end
-
+  --]]
   camera:setScale(g, g)
 
   --find way to soften follow of camera maybe add delay
-  --camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
+  camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
 
   --iteration for players animation direction
   for i,v in ipairs(player) do
