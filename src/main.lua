@@ -36,6 +36,53 @@ function distance(value,value2)
   return d
 end
 
+function kick(player)
+  --boo = player.body:getAngle()
+
+  local xp, yp = player.body:getPosition( )
+
+  xd = distance(xp,xb)
+  yd = distance(yp,yb)
+
+  f = 100
+
+  local dis = math.sqrt((xd^2)+(yd^2))
+
+  ball_size = objects.ball.shape:getRadius()
+
+  if dis < 100 then
+
+    local left_or_right = xp - xb
+
+    local comp = (yp - yb) / (xp - xb)
+
+    local rad = math.atan( comp )
+
+    --ball_mass = objects.ball.body:getMass()
+    --ac = f / ball_mass
+
+    local v = f/dis
+
+    if left_or_right > 0 then
+      hemi = -1
+    else
+      hemi = 1
+    end
+
+    local xf = hemi*math.cos(rad)*v
+    local yf = hemi*math.sin(rad)*v
+
+    objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
+    --[[
+      local old_radius = objects.ball.shape:getRadius()
+      local new = old_radius*1.1;
+      objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1)
+      objects.ball.body:setMass(0.009)
+      objects.ball.shape:setRadius(new)
+    ]]--
+  end
+end
+
 
 function beginContact(a, b, coll)
   local a_name = a:getUserData()
@@ -92,12 +139,12 @@ function game:enter()
   dt = 0 -- helps with speeding up on auto refresh
 
   love.graphics.setBackgroundColor( 0, 10, 25 )
-  --[[
+
   h = love.graphics.getHeight()
   w = love.graphics.getWidth()
   i = 1920 / w
-  ]]--
-  i = 1;
+
+  --i = 1;
   g = i
 
   world = {}
@@ -161,20 +208,23 @@ function game:enter()
 
   --define selectable characters
   characters = {
-    default = { height = 100, width = 100, kick = 100, image = 'img/player_placeholder.png' }
+    default = { height = 100, width = 100, kick = 100, speed = 150, image = 'img/player_placeholder.png' }
   }
 
-  --this is roster of listed players
-  character = {}
-    character[1] = {x = 300, y = 0, c = "K", team = 0, k = 100}
-    character[2] = {x = -300, y = -0, c = 1, team = 1, k = 100}
+  --this is roster of listed players, will be built elsewhere
+  roster = {}
+    roster[1] = {x = 300, y = 0, c = "K", team = 0, char = "default"}
+    roster[2] = {x = -300, y = -0, c = 1, team = 1, char = "default"}
 
   player = {}
   bg = {}
 
-  for i,v in ipairs(character) do
-    player[i] = { x = character[i].x, y = character[i].y, c = character[i].c, speed = 100, image = nil }
-    player[i].image = love.graphics.newImage('img/player_placeholder.png');
+  for i,v in ipairs(roster) do
+
+    print()
+
+    player[i] = { x = roster[i].x, y = roster[i].y, c = roster[i].c, speed = characters[roster[i].char].speed, image = nil }
+    player[i].image = love.graphics.newImage(characters[roster[i].char].image);
     bg[i] = anim8.newGrid(350, 350, player[i].image:getWidth(), player[i].image:getHeight())
     player[i].anim = {
       s = anim8.newAnimation(bg[i]('1-1', 1), 0.1),
@@ -187,18 +237,17 @@ function game:enter()
         sw = anim8.newAnimation(bg[i]('8-8', 1), 0.1)
     }
     player[i].body = love.physics.newBody(world, player[i].x, player[i].y, "static")
-    player[i].box = love.physics.newRectangleShape(100, 100)
+    player[i].box = love.physics.newRectangleShape(characters[roster[i].char].height, characters[roster[i].char].width)
     player[i].fixture = love.physics.newFixture(player[i].body, player[i].box)
   end
 
 end
 
---Increase the size of the rectangle every frame.
+
 function game:update(dt)
 
-  --physics
-  world:update(dt)
 
+  world:update(dt)
   table.sort(player, orderY)
   text = team_a_score.." - "..team_b_score
 
@@ -246,50 +295,7 @@ function game:update(dt)
 
       --kick action
       if love.keyboard.isDown('k') then
-        --boo = player.body:getAngle()
-
-        xp, yp = player[i].body:getPosition( )
-
-        xd = distance(xp,xb)
-        yd = distance(yp,yb)
-
-        f = 100
-
-        dis = math.sqrt((xd^2)+(yd^2))
-
-        testt = objects.ball.shape:getRadius()
-
-        if dis < 100 then
-
-          local left_or_right = xp - xb
-
-          local comp = (yp - yb) / (xp - xb)
-
-          local rad = math.atan( comp )
-
-          --ball_mass = objects.ball.body:getMass()
-          --ac = f / ball_mass
-
-          local v = f/dis
-
-          if left_or_right > 0 then
-            hemi = -1
-          else
-            hemi = 1
-          end
-
-          local xf = hemi*math.cos(rad)*v
-          local yf = hemi*math.sin(rad)*v
-
-          objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
-          --[[
-            local old_radius = objects.ball.shape:getRadius()
-            local new = old_radius*1.1;
-            objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1)
-            objects.ball.body:setMass(0.009)
-            objects.ball.shape:setRadius(new)
-          ]]--
-        end
+        kick(player[i])
       end --kick end
 
       --experiment to determine rotation
@@ -307,6 +313,7 @@ function game:update(dt)
 
     else
       --xbox360 controller movments for each
+
     end
 
   end--end iteration of players
@@ -336,10 +343,10 @@ function game:update(dt)
   end
   ]]--
 
-  camera:setScale(g, g)
 
-  spacey = (love.graphics.getHeight()/2)*-1
-  spacex = (love.graphics.getWidth()/2)*-1
+
+  local spacey = (love.graphics.getHeight()/2)*-1
+  local spacex = (love.graphics.getWidth()/2)*-1
 
   --depending on ball positon offest
   xs, yb = objects.ball.body:getPosition( )
@@ -352,6 +359,8 @@ function game:update(dt)
       camera:setPosition(player[i].body:getX()+spacex, player[i].body:getY()+spacey)
     end
   end
+
+  camera:setScale(g, g)
 
   --find way to soften follow of camera maybe add delay
   --camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
