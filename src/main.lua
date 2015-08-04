@@ -373,11 +373,9 @@ function game:update(dt)
   end
   ]]--
 
-  local spacey = (love.graphics.getHeight()/2)*-1
-  --print(spacey)
-  --spacey = -400
-  local spacex = (love.graphics.getWidth()/2)*-1
-  --spacex = -700
+  local spacey = ((love.graphics.getHeight()*g)/2)*-1
+  local spacex = ((love.graphics.getWidth()*g)/2)*-1
+  
   --depending on ball positon offest
   xs, yb = objects.ball.body:getPosition( )
   spacex = spacex-(xs/6)
@@ -391,7 +389,7 @@ function game:update(dt)
     end
   end
   --]]
-  camera:setScale(g, g)
+  camera:setScale(g, g) -- gg
 
   --find way to soften follow of camera maybe add delay
   camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
