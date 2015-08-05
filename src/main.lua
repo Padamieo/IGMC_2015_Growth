@@ -14,6 +14,7 @@ menu = require "menu"
 camera = require "camera"
 anim8 = require 'resources.anim8'
 
+require 'general' -- not sure this helps with speed and performance
 
 function love.load()
     dt = 0
@@ -26,70 +27,10 @@ end
 --following to go in game.lua but bellow for development
 game = {}
 
--- orders y depth
-function orderY(a,b)
-  return a.body:getY() < b.body:getY()
-end
-
---determines distance from figures
-function distance(value,value2)
-  d = value - value2
-  d = math.abs(d)
-  return d
-end
-
 function love.joystickadded(joystick)
     p1joystick = joystick
     print("joystic")
 end
-
-function kick(player)
-  --boo = player.body:getAngle()
-
-  local xp, yp = player.body:getPosition( )
-
-  xd = distance(xp,xb)
-  yd = distance(yp,yb)
-
-  f = 100
-
-  local dis = math.sqrt((xd^2)+(yd^2))
-
-  ball_size = objects.ball.shape:getRadius()
-
-  if dis < 100 then
-
-    local left_or_right = xp - xb
-
-    local comp = (yp - yb) / (xp - xb)
-
-    local rad = math.atan( comp )
-
-    --ball_mass = objects.ball.body:getMass()
-    --ac = f / ball_mass
-
-    local v = f/dis
-
-    if left_or_right > 0 then
-      hemi = -1
-    else
-      hemi = 1
-    end
-
-    local xf = hemi*math.cos(rad)*v
-    local yf = hemi*math.sin(rad)*v
-
-    objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
-    --[[
-      local old_radius = objects.ball.shape:getRadius()
-      local new = old_radius*1.1;
-      objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1)
-      objects.ball.body:setMass(0.009)
-      objects.ball.shape:setRadius(new)
-    ]]--
-  end
-end
-
 
 function beginContact(a, b, coll)
   local a_name = a:getUserData()
@@ -108,8 +49,6 @@ function beginContact(a, b, coll)
       team_a_score = team_a_score + 1
     end
   end
-
-
 
   if a_name == "B" then
     if b_name == "Ball" then
@@ -139,6 +78,20 @@ function postSolve(a, b, coll, normalimpulse1, tangentimpulse1, normalimpulse2, 
 
 end
 
+--needs work
+function screen_message(text)
+  size = 150
+  local h = love.graphics.getHeight()
+  local w = love.graphics.getWidth()
+  love.graphics.setNewFont(size)
+  local length = string.len(text)
+  offset = size*length
+
+  ww = love.graphics:getHeight( text )
+
+  love.graphics.print(text, (w/2)-(offset/2), h/2)
+end
+
 
 -- Load some default values for our rectangle.
 function game:enter()
@@ -157,7 +110,7 @@ function game:enter()
   world = {}
   world = love.physics.newWorld(0, 0, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
   world:setCallbacks(beginContact, endContact, preSolve, postSolve)
-  --text = "0-0"
+
   team_a_score = 0;
   team_b_score = 0;
   text = "0 - 0"
@@ -350,37 +303,17 @@ function game:update(dt)
   end--end iteration of players
 
   --zoom in and out, good start, It needs to be based on distance
-  --[[
-  xp, yp = player[1].body:getPosition( )
-  xb, yb = objects.ball.body:getPosition( )
-  width_distance = distance(xp,xb)
-  yd = distance(yp,yb)
-  width = love.graphics.getWidth( )
-  width = width/2
 
-  if width < width_distance then
-    if g < 2 then
-      g = g + dt
-    else
-      g = 2
-    end
-  else
-    if g > 1 then
-      g = g - dt
-    else
-      g = 1
-    end
-  end
-  ]]--
 
   local spacey = ((love.graphics.getHeight()*g)/2)*-1
   local spacex = ((love.graphics.getWidth()*g)/2)*-1
-  
-  --depending on ball positon offest
-  xs, yb = objects.ball.body:getPosition( )
-  spacex = spacex-(xs/6)
 
+  xs, ys = objects.ball.body:getPosition( )
+  spacex = spacex-(xs/6)
+  spacey = spacey-(ys/4)
   --temp camera setup (currency causes jerky follow)
+
+
 
   --[[
   for i,v in ipairs(player) do
@@ -389,6 +322,8 @@ function game:update(dt)
     end
   end
   --]]
+
+
   camera:setScale(g, g) -- gg
 
   --find way to soften follow of camera maybe add delay
@@ -462,4 +397,5 @@ function game:draw()
   camera:unset()
   --love.graphics.rectangle('fill', 400, 80, w, h); -- gui not set by camera
   love.graphics.print(text, 10, 10)
+  screen_message("AAA")
 end
