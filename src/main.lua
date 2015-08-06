@@ -39,6 +39,7 @@ function beginContact(a, b, coll)
   if a_name == "A" then
     if b_name == "Ball" then
       print("A goal")
+      goal()
       team_a_score = team_a_score + 1
     end
   end
@@ -46,6 +47,7 @@ function beginContact(a, b, coll)
   if b_name == "A" then
     if a_name == "Ball" then
       print("A goal")
+      goal()
       team_a_score = team_a_score + 1
     end
   end
@@ -53,6 +55,7 @@ function beginContact(a, b, coll)
   if a_name == "B" then
     if b_name == "Ball" then
       print("B goal")
+      goal()
       team_b_score = team_b_score + 1
     end
   end
@@ -60,6 +63,7 @@ function beginContact(a, b, coll)
   if b_name == "B" then
     if a_name == "Ball" then
       print("B goal")
+      goal()
       team_b_score = team_b_score + 1
     end
   end
@@ -90,6 +94,10 @@ function screen_message(text)
   ww = love.graphics:getHeight( text )
 
   love.graphics.print(text, (w/2)-(offset/2), h/2)
+end
+
+function goal()
+  objects.ball.hide = 1
 end
 
 
@@ -123,7 +131,7 @@ function game:enter()
   pitch.img = love.graphics.newImage('img/pitch.jpeg')
 
   objects = {} -- table to hold all our physical objects
-  objects.ball = {}
+  objects.ball = {hide = 0}
   objects.ball.body = love.physics.newBody(world, 0, 0, "dynamic") --place the body in the center of the world and make it dynamic, so it can move around
   objects.ball.shape = love.physics.newCircleShape( 20 ) --the ball's shape has a radius of 20
   objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1) -- Attach fixture to body and give it a density of 1.
@@ -168,7 +176,7 @@ function game:enter()
 
   --define selectable characters
   characters = {
-    default = { height = 100, width = 100, kick = 100, speed = 150, image = 'img/player_placeholder.png' }
+    default = { height = 100, width = 100, kick = 150, speed = 170, image = 'img/player_placeholder.png' }
   }
 
   --this is roster of listed players, will be built elsewhere
@@ -370,8 +378,8 @@ function game:draw()
   for i,v in ipairs(player) do
 
     if not drawn and player[i].body:getY() > objects.ball.body:getY() then
-        love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
-        drawn = true
+      draw_ball()
+      drawn = true
     end
 
     if player[i].dir == 'w' then
@@ -389,7 +397,7 @@ function game:draw()
   end
 
   if not drawn then -- if the person is below all objects it won't be drawn within the for loop
-     love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
+    draw_ball()
   end
 
   --love.graphics.setColor(193, 47, 14) --set the drawing color to red for the ball
@@ -397,5 +405,15 @@ function game:draw()
   camera:unset()
   --love.graphics.rectangle('fill', 400, 80, w, h); -- gui not set by camera
   love.graphics.print(text, 10, 10)
-  screen_message("AAA")
+  --screen_message("AAA")
+end
+
+function draw_ball()
+  if objects.ball.hide == 0 then
+    love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
+  else
+    love.graphics.setColor(22, 250, 250);
+    love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
+    love.graphics.setColor(250, 250, 250);
+  end
 end
