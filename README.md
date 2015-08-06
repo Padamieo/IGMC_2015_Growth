@@ -1,9 +1,20 @@
-# IGMC_2015_Grow
-not sure on title yet football
+# IGMC_2015_Grow " GROWAL "
 
-built for INDIE GAME MAKER CONTEST 2015
-GROWTH
-http://contest.gamedevfort.com/
+*This was project was originally started for [INDIE GAME MAKER CONTEST](http://contest.gamedevfort.com/) 2015 but was incomplete by deadline.*
+
+**GROWAL** : Is a football inspired game, where players deal with an growning football.
+
+To build / run the development version you will require the following:
+ - node, npm : https://nodejs.org/
+   - grunt : http://bower.io/
+   - bower : http://gruntjs.com/
+ + love2d : https://love2d.org/
+
+##Available Grunt Commands
+
+* grunt
+* grunt watch
+
 
 current tutorials might help
 
