@@ -321,7 +321,12 @@ function game:update(dt)
   spacey = spacey-(ys/4)
   --temp camera setup (currency causes jerky follow)
 
-
+  --ensure all active players are on screen
+  for i,v in ipairs(player) do
+   --if tonumber(player[i].c) ~= nil then
+     -- check payer is within current screen zoom out if needed
+   --end
+  end
 
   --[[
   for i,v in ipairs(player) do
