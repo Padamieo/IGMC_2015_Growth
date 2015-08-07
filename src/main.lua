@@ -98,8 +98,37 @@ end
 
 function goal()
   objects.ball.hide = 1
+
 end
 
+function is_int(n)
+  return (type(n) == "number") and (math.floor(n) == n)
+end
+
+function moveto(object, x, y, dt)
+  print(object:getX())
+
+  if object:getX() ~= x then
+    if object.speed ~= nil then
+      temp = object:getX() + (dt * object.speed)*((x - object:getX()) / math.abs(x - object:getX()))
+      object:setX(temp)
+    else
+      temp = object:getX() + (dt * 200)*((x - object:getX()) / math.abs(x - object:getX()))
+      object:setX(temp)
+    end
+  end
+
+  if object:getY() ~= y then
+    if object.speed ~= nil then
+      temp = object:getY() + (dt * object.speed)*((y - object:getX()) / math.abs(y - object:getX()))
+      object:setY(temp)
+    else
+      temp = object:getY() + (dt * 200)*((y - object:getY()) / math.abs(y - object:getY()))
+      object:setY(temp)
+    end
+  end
+
+end
 
 -- Load some default values for our rectangle.
 function game:enter()
@@ -183,6 +212,7 @@ function game:enter()
   roster = {}
     roster[1] = {x = 300, y = 0, c = "K", team = 0, char = "default"}
     roster[2] = {x = -300, y = -0, c = 1, team = 1, char = "default"}
+    roster[3] = {x = -400, y = -300, c = "C", team = 1, char = "default"}
 
   player = {}
   bg = {}
@@ -212,6 +242,7 @@ end
 
 function game:update(dt)
 
+  --moveto(objects.ball.body, 500, 500, dt)
 
   world:update(dt)
   table.sort(player, orderY)
@@ -277,7 +308,7 @@ function game:update(dt)
         player[i].body:setAngle(0)
       end
 
-    else
+    elseif is_int(player[i].c) then
       --xbox360 controller movments for each
       if p1joystick ~= nil then
 
@@ -306,6 +337,9 @@ function game:update(dt)
         end
 
       end
+    else
+      --ai stuff here
+      moveto(player[i].body, 500, 500, dt) -- this will just move c for computer controlled player to x y specifyed.
     end
 
   end--end iteration of players
