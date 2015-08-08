@@ -105,10 +105,24 @@ function is_int(n)
   return (type(n) == "number") and (math.floor(n) == n)
 end
 
-function moveto(object, x, y, dt)
+function positive_num(value)
+  if value > 0 then
+    value = value*-1
+  end
+  return value
+end
+
+function moveto(obj, x, y, dt)
+
+  local reached = 0
+  local vv = obj.roster
+  local object = obj.body
+  local this_width = characters[roster[vv].char].width
+  local this_height = characters[roster[vv].char].height
+
   print(object:getX())
 
-  if object:getX() ~= x then
+  if positive_num(object:getX()) <= positive_num(x)-this_width or positive_num(object:getX()) >= positive_num(x)+this_width then
     if object.speed ~= nil then
       temp = object:getX() + (dt * object.speed)*((x - object:getX()) / math.abs(x - object:getX()))
       object:setX(temp)
@@ -116,9 +130,11 @@ function moveto(object, x, y, dt)
       temp = object:getX() + (dt * 200)*((x - object:getX()) / math.abs(x - object:getX()))
       object:setX(temp)
     end
+  else
+    reached = reached + 1;
   end
 
-  if object:getY() ~= y then
+  if positive_num(object:getY()) <= positive_num(y)-this_height or positive_num(object:getY()) >= positive_num(y)+this_height then
     if object.speed ~= nil then
       temp = object:getY() + (dt * object.speed)*((y - object:getX()) / math.abs(y - object:getX()))
       object:setY(temp)
@@ -126,6 +142,14 @@ function moveto(object, x, y, dt)
       temp = object:getY() + (dt * 200)*((y - object:getY()) / math.abs(y - object:getY()))
       object:setY(temp)
     end
+  else
+    reached = reached + 1;
+  end
+
+  if reached >= 2 then
+    return true
+  else
+    return false
   end
 
 end
@@ -219,7 +243,7 @@ function game:enter()
 
   for i,v in ipairs(roster) do
 
-    player[i] = { x = roster[i].x, y = roster[i].y, c = roster[i].c, speed = characters[roster[i].char].speed, image = nil }
+    player[i] = { roster = i, x = roster[i].x, y = roster[i].y, c = roster[i].c, speed = characters[roster[i].char].speed, image = nil }
     player[i].image = love.graphics.newImage(characters[roster[i].char].image);
     bg[i] = anim8.newGrid(350, 350, player[i].image:getWidth(), player[i].image:getHeight())
     player[i].anim = {
@@ -233,8 +257,8 @@ function game:enter()
         sw = anim8.newAnimation(bg[i]('8-8', 1), 0.1)
     }
     player[i].body = love.physics.newBody(world, player[i].x, player[i].y, "static")
-    player[i].box = love.physics.newRectangleShape(characters[roster[i].char].height, characters[roster[i].char].width)
-    player[i].fixture = love.physics.newFixture(player[i].body, player[i].box)
+    player[i].shape = love.physics.newRectangleShape(characters[roster[i].char].height, characters[roster[i].char].width)
+    player[i].fixture = love.physics.newFixture(player[i].body, player[i].shape)
   end
 
 end
@@ -339,7 +363,8 @@ function game:update(dt)
       end
     else
       --ai stuff here
-      moveto(player[i].body, 500, 500, dt) -- this will just move c for computer controlled player to x y specifyed.
+      local arrived = moveto(player[i], 500, 500, dt) -- this will just move c for computer controlled player to x y specifyed.
+      print(arrived)
     end
 
   end--end iteration of players
