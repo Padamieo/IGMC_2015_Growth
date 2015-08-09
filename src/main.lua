@@ -15,6 +15,8 @@ camera = require "camera"
 anim8 = require 'resources.anim8'
 
 require 'general' -- not sure this helps with speed and performance
+require 'characters' -- list of playable characters and their stats
+
 
 function love.load()
     dt = 0
@@ -82,7 +84,7 @@ function postSolve(a, b, coll, normalimpulse1, tangentimpulse1, normalimpulse2, 
 
 end
 
---needs work
+--needs work currently not right
 function screen_message(text)
   size = 150
   local h = love.graphics.getHeight()
@@ -96,31 +98,28 @@ function screen_message(text)
   love.graphics.print(text, (w/2)-(offset/2), h/2)
 end
 
+
 function goal()
   objects.ball.hide = 1
 
 end
 
-function is_int(n)
-  return (type(n) == "number") and (math.floor(n) == n)
-end
-
-function positive_num(value)
-  if value > 0 then
-    value = value*-1
-  end
-  return value
-end
-
 function moveto(obj, x, y, dt)
 
   local reached = 0
-  local vv = obj.roster
+  local r = obj.roster
   local object = obj.body
-  local this_width = characters[roster[vv].char].width
-  local this_height = characters[roster[vv].char].height
+  local this_width
+  local this_height
 
-  print(object:getX())
+  --may not need to ever move ball
+  if obj.fixture:getUserData() ~= 'ball' then
+    this_width = objects.ball.shape:getRadius()
+    this_height = this_width
+  else
+    this_width = characters[roster[r].char].width
+    this_height = characters[roster[r].char].height
+  end
 
   if positive_num(object:getX()) <= positive_num(x)-this_width or positive_num(object:getX()) >= positive_num(x)+this_width then
     if object.speed ~= nil then
@@ -154,6 +153,24 @@ function moveto(obj, x, y, dt)
 
 end
 
+function ai_basic(i, dt)
+
+    if roster[player[i].roster].team == 1 then
+      if xb < -200 then
+        --need to trigger state for character based on attributes like speed and force
+
+        local run_to_y = player[i].body:getY()
+        local run_to_x = xb-200 -- curent position of ball
+
+        arrived = moveto(player[i], run_to_x, run_to_y, dt)
+
+      end
+    end
+
+end
+
+
+
 -- Load some default values for our rectangle.
 function game:enter()
 
@@ -161,12 +178,7 @@ function game:enter()
 
   love.graphics.setBackgroundColor( 0, 10, 25 )
 
-  h = love.graphics.getHeight()
-  w = love.graphics.getWidth()
-  i = 1920 / w
-
-  --i = 1;
-  g = i
+  z = set_zoom() -- this is set once so changing screen is a no go
 
   world = {}
   world = love.physics.newWorld(0, 0, true) --create a world for the bodies to exist in with horizontal gravity of 0 and vertical gravity of 9.81
@@ -227,34 +239,29 @@ function game:enter()
   objects.goal_B.fixture = love.physics.newFixture(objects.goal_B.body, objects.goal_B.shape, 5) -- A higher density gives it more mass.
   objects.goal_B.fixture:setUserData("B")
 
-  --define selectable characters
-  characters = {
-    default = { height = 100, width = 100, kick = 150, speed = 170, image = 'img/player_placeholder.png' }
-  }
-
   --this is roster of listed players, will be built elsewhere
   roster = {}
     roster[1] = {x = 300, y = 0, c = "K", team = 0, char = "default"}
     roster[2] = {x = -300, y = -0, c = 1, team = 1, char = "default"}
-    roster[3] = {x = -400, y = -300, c = "C", team = 1, char = "default"}
+    roster[3] = {x = -500, y = -450, c = "C", team = 1, char = "default"}
+    roster[4] = {x = -500, y = 450, c = "C", team = 1, char = "default"}
 
   player = {}
-  bg = {}
+  ani = {}
 
   for i,v in ipairs(roster) do
-
     player[i] = { roster = i, x = roster[i].x, y = roster[i].y, c = roster[i].c, speed = characters[roster[i].char].speed, image = nil }
     player[i].image = love.graphics.newImage(characters[roster[i].char].image);
-    bg[i] = anim8.newGrid(350, 350, player[i].image:getWidth(), player[i].image:getHeight())
+    ani[i] = anim8.newGrid(350, 350, player[i].image:getWidth(), player[i].image:getHeight())
     player[i].anim = {
-      s = anim8.newAnimation(bg[i]('1-1', 1), 0.1),
-        se = anim8.newAnimation(bg[i]('2-2', 1), 0.1),
-      e = anim8.newAnimation(bg[i]('3-3', 1), 0.1),
-        ne = anim8.newAnimation(bg[i]('4-4', 1), 0.1),
-      n = anim8.newAnimation(bg[i]('5-5', 1), 0.1),
-        nw = anim8.newAnimation(bg[i]('6-6', 1), 0.1),
-      w = anim8.newAnimation(bg[i]('7-7', 1), 0.1),
-        sw = anim8.newAnimation(bg[i]('8-8', 1), 0.1)
+      s = anim8.newAnimation(ani[i]('1-1', 1), 0.1),
+        se = anim8.newAnimation(ani[i]('2-2', 1), 0.1),
+      e = anim8.newAnimation(ani[i]('3-3', 1), 0.1),
+        ne = anim8.newAnimation(ani[i]('4-4', 1), 0.1),
+      n = anim8.newAnimation(ani[i]('5-5', 1), 0.1),
+        nw = anim8.newAnimation(ani[i]('6-6', 1), 0.1),
+      w = anim8.newAnimation(ani[i]('7-7', 1), 0.1),
+        sw = anim8.newAnimation(ani[i]('8-8', 1), 0.1)
     }
     player[i].body = love.physics.newBody(world, player[i].x, player[i].y, "static")
     player[i].shape = love.physics.newRectangleShape(characters[roster[i].char].height, characters[roster[i].char].width)
@@ -263,10 +270,7 @@ function game:enter()
 
 end
 
-
 function game:update(dt)
-
-  --moveto(objects.ball.body, 500, 500, dt)
 
   world:update(dt)
   table.sort(player, orderY)
@@ -277,6 +281,19 @@ function game:update(dt)
   end
 
   xb, yb = objects.ball.body:getPosition( ) --ball x and y used in everything
+
+  --this is probably not needed ball could just be placed
+  if objects.ball.hide ~= 0 then
+    local reset = moveto(objects.ball, 0, 0, dt)
+    if reset == true then
+      objects.ball.hide = 0
+      objects.ball.body:setLinearVelocity(0, 0)
+    end
+    --[[
+    objects.ball.body:setPosition( 0, 0 )
+    objects.ball.body:setLinearVelocity(0, 0)
+    ]]--
+  end
 
   --allowing for user entered controlls later
   keyboard_set = {
@@ -363,17 +380,14 @@ function game:update(dt)
       end
     else
       --ai stuff here
-      local arrived = moveto(player[i], 500, 500, dt) -- this will just move c for computer controlled player to x y specifyed.
-      print(arrived)
+      ai_basic(i, dt)
+
     end
 
   end--end iteration of players
 
-  --zoom in and out, good start, It needs to be based on distance
-
-
-  local spacey = ((love.graphics.getHeight()*g)/2)*-1
-  local spacex = ((love.graphics.getWidth()*g)/2)*-1
+  local spacey = ((love.graphics.getHeight()*z)/2)*-1
+  local spacex = ((love.graphics.getWidth()*z)/2)*-1
 
   xs, ys = objects.ball.body:getPosition( )
   spacex = spacex-(xs/6)
@@ -396,7 +410,7 @@ function game:update(dt)
   --]]
 
 
-  camera:setScale(g, g) -- gg
+  camera:setScale(z, z)
 
   --find way to soften follow of camera maybe add delay
   camera:setPosition(objects.ball.body:getX()+spacex, objects.ball.body:getY()+spacey)
@@ -474,9 +488,10 @@ end
 
 function draw_ball()
   if objects.ball.hide == 0 then
+    love.graphics.setColor(250, 250, 250);
     love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
   else
-    love.graphics.setColor(22, 250, 250);
+    love.graphics.setColor(22, 22, 250);
     love.graphics.circle("fill", objects.ball.body:getX(), objects.ball.body:getY(), objects.ball.shape:getRadius())
     love.graphics.setColor(250, 250, 250);
   end

@@ -9,6 +9,7 @@ function menu:draw()
 end
 
 function menu:keyreleased(key, code)
+
     if key == 'g' then
         gamestate.switch(game)
     end

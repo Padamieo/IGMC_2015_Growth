@@ -10,6 +10,28 @@ function distance(value,value2)
   return d
 end
 
+--determine n is number
+function is_int(n)
+  return (type(n) == "number") and (math.floor(n) == n)
+end
+
+--returns only positive number
+function positive_num(value)
+  if value > 0 then
+    value = value*-1
+  end
+  return value
+end
+
+function set_zoom()
+  --h = love.graphics.getHeight()
+  local w = love.graphics.getWidth()
+  return 1920 / w
+end
+
+
+--player things maybe handle elsewhere
+
 function kick(player)
   --boo = player.body:getAngle()
 
