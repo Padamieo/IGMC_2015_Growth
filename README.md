@@ -15,6 +15,15 @@ To build / run the development version you will require the following:
 * grunt
 * grunt watch
 
+##current to do tasks
+
+* find way to work more efficently auto load / auto update (currently using lick)
+* zoom out max 2x (z) when characters off screen
+* the ai in general
+* round reset GUI "goal message" need refining
+* GUI start menu, user chooses team / also getting conntected pads, selecting roaster (select team)
+* 
+
 
 current tutorials might help
 
