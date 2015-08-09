@@ -40,8 +40,6 @@ end
 function team:update()
   if love.keyboard.isDown('left','a') then
     gui.keyboard.x = love.graphics.getWidth()/4
-  else if love.keyboard.isDown('right','d') then
-    gui.keyboard.x = love.graphics.getWidth()/4
   end
 end
 
