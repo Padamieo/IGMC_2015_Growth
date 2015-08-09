@@ -9,6 +9,7 @@ lick.reset = true
 
 --define game states and functions to be included
 menu = require "menu"
+--team = require "team"
 --game = require "game"
 
 camera = require "camera"
@@ -23,7 +24,41 @@ function love.load()
     p1joystick = nil
     gamestate.registerEvents()
     --gamestate.switch(menu)
-    gamestate.switch(game)
+    gamestate.switch(team)
+end
+
+team = {}
+
+function team:enter()
+  love.graphics.setBackgroundColor( 0, 10, 25 )
+
+  gui = {}
+  gui.keyboard = {x = (love.graphics.getWidth()/2)-25, y = 25}
+  gui.keyboard.shape = love.physics.newRectangleShape(0, 0, 50, 50)
+end
+
+function team:update()
+  if love.keyboard.isDown('left','a') then
+    gui.keyboard.x = love.graphics.getWidth()/4
+  else if love.keyboard.isDown('right','d') then
+    gui.keyboard.x = love.graphics.getWidth()/4
+  end
+end
+
+function team:draw()
+  love.graphics.setColor(250, 250, 250);
+  love.graphics.print("Press g to continue", 10, 10)
+  love.graphics.setColor(250, 50, 50);
+
+  love.graphics.rectangle( "fill", gui.keyboard.x, gui.keyboard.y, 50, 50 )
+
+end
+
+function team:keyreleased(key, code)
+
+  if key == 'g' then
+      gamestate.switch(game)
+  end
 end
 
 --following to go in game.lua but bellow for development
@@ -170,8 +205,6 @@ function ai_basic(i, dt)
 end
 
 
-
-
 -- Load some default values for our rectangle.
 function game:enter()
 
@@ -297,7 +330,7 @@ function game:update(dt)
   end
 
   --allowing for user entered controlls later
-  keyboard_set = {
+  keyset = {
     s = 'down',
     e = 'right',
     n = 'up',
