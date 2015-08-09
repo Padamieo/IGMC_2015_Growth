@@ -1,0 +1,7 @@
+# refactor structure - divide and compartmentalise objects such as players and characters etc
+	## allow for abstraction away from LOVE basics and core functions
+	## increase fidelity of control over objects and getting info about them
+	## allow for a more logical, calmer, more intuitive game update and draw logic
+	## overall allow "active game code" to be a bit tidier
+
+# implement system for "stepping" - time-bound/gated inputs
