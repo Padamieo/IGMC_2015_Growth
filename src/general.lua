@@ -46,7 +46,9 @@ function kick(player)
 
   ball_size = objects.ball.shape:getRadius()
 
-  if dis < 100 then
+  valid_distance = ball_size + 60 --magic number for now
+
+  if dis < valid_distance then
 
     local left_or_right = xp - xb
 
@@ -69,12 +71,11 @@ function kick(player)
     local yf = hemi*math.sin(rad)*v
 
     objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
-    --[[
       local old_radius = objects.ball.shape:getRadius()
       local new = old_radius*1.1;
       objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1)
       objects.ball.body:setMass(0.009)
       objects.ball.shape:setRadius(new)
-    ]]--
+    
   end
 end
