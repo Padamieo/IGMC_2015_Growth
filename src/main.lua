@@ -34,10 +34,12 @@ function love.joystickadded(joystick)
   --p1joystick = joystick
 
   if gamepad  ~= nil then
-    gamepad[1] = joystick
+    local value = table.getn(gamepad)
+    print(value)
+    gamepad[value+1] = joystick
   else
-    print(table.getn(gamepad))
-    --gamepad[table.getn(gamepad)+1] = joystick
+    gamepad = {}
+    gamepad[1] = joystick
   end
 
 end
@@ -51,10 +53,12 @@ function team:enter()
 
   roster = {}
 
+  gui.pad = {}
+
   if gamepad ~= nil then
     for i,v in ipairs(gamepad) do
       gui.pad[i] = {x = (love.graphics.getWidth()/2)-25, y = 150}
-      gui.pad[i].shape = love.physics.newRectangleShape(0, 0, 50, 50)
+      gui.pad[i].shape = love.physics.newRectangleShape(0, 0, 50, 25)
     end
   end
 
@@ -73,10 +77,10 @@ function team:update()
   if gamepad ~= nil then
     for i,v in ipairs(gamepad) do
       local x = gamepad[i]:getGamepadAxis("leftx")
-      if x > 0.2 then
+      if x < -0.2 then
         gui.pad[i].x = (love.graphics.getWidth()/4)-25
         roster[i+1] = {team = 0, c = i}
-      elseif x < -0.2 then
+      elseif x > 0.2 then
         gui.pad[i].x = (love.graphics.getWidth()/2)+(love.graphics.getWidth()/4)-25
         roster[i+1] = {team = 1, c = i}
       end
@@ -431,9 +435,9 @@ function game:update(dt)
 
     elseif is_int(player[i].c) then
       --xbox360 controller movments for each
-      if p1joystick ~= nil then
+      if gamepad[player[i].c] ~= nil then
 
-        local x = p1joystick:getGamepadAxis("leftx")
+        local x = gamepad[player[i].c]:getGamepadAxis("leftx")
         if x > 0.2 then
           player[i].body:setX(player[i].body:getX() + (player[i].speed*dt))
           player[i].dir = 'e'
@@ -444,7 +448,7 @@ function game:update(dt)
           player[i].dir = ''
         end
 
-        local y = p1joystick:getGamepadAxis("lefty")
+        local y = gamepad[player[i].c]:getGamepadAxis("lefty")
         if y > 0.2 then
           player[i].body:setY(player[i].body:getY() + (player[i].speed*dt))
           player[i].dir = 's'
@@ -453,7 +457,7 @@ function game:update(dt)
           player[i].dir = 'n'
         end
 
-        if p1joystick:getGamepadAxis("triggerright") > 0.2 then
+        if gamepad[player[i].c]:getGamepadAxis("triggerright") > 0.2 then
           kick(player[i])
         end
 

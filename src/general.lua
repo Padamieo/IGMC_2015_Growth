@@ -71,11 +71,13 @@ function kick(player)
     local yf = hemi*math.sin(rad)*v
 
     objects.ball.body:applyLinearImpulse( xf, yf ) --this is definatly wrong
-      local old_radius = objects.ball.shape:getRadius()
+    local old_radius = objects.ball.shape:getRadius()
+    if old_radius < 300 then
       local new = old_radius*1.1;
       objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 1)
       objects.ball.body:setMass(0.009)
       objects.ball.shape:setRadius(new)
-    
+    end
+
   end
 end
