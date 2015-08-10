@@ -31,8 +31,15 @@ team = {}
 
 function love.joystickadded(joystick)
 
-    p1joystick = joystick
-    print("joystic")
+  --p1joystick = joystick
+
+  if gamepad  ~= nil then
+    gamepad[1] = joystick
+  else
+    print(table.getn(gamepad))
+    --gamepad[table.getn(gamepad)+1] = joystick
+  end
+
 end
 
 function team:enter()
@@ -42,10 +49,14 @@ function team:enter()
   gui.keyboard = {x = (love.graphics.getWidth()/2)-25, y = 25}
   gui.keyboard.shape = love.physics.newRectangleShape(0, 0, 50, 50)
 
-  pads = {}
+  roster = {}
 
-  gui.pad = {x = (love.graphics.getWidth()/2)-25, y = 150}
-  gui.pad.shape = love.physics.newRectangleShape(0, 0, 50, 50)
+  if gamepad ~= nil then
+    for i,v in ipairs(gamepad) do
+      gui.pad[i] = {x = (love.graphics.getWidth()/2)-25, y = 150}
+      gui.pad[i].shape = love.physics.newRectangleShape(0, 0, 50, 50)
+    end
+  end
 
 end
 
@@ -53,8 +64,23 @@ function team:update()
 
   if love.keyboard.isDown('left','a') then
     gui.keyboard.x = (love.graphics.getWidth()/4)-25
+    roster[1] = {team = 0, c = "K"}
   elseif love.keyboard.isDown('right','d') then
     gui.keyboard.x = (love.graphics.getWidth()/2)+(love.graphics.getWidth()/4)-25
+    roster[1] = {team = 1, c = "K"}
+  end
+
+  if gamepad ~= nil then
+    for i,v in ipairs(gamepad) do
+      local x = gamepad[i]:getGamepadAxis("leftx")
+      if x > 0.2 then
+        gui.pad[i].x = (love.graphics.getWidth()/4)-25
+        roster[i+1] = {team = 0, c = i}
+      elseif x < -0.2 then
+        gui.pad[i].x = (love.graphics.getWidth()/2)+(love.graphics.getWidth()/4)-25
+        roster[i+1] = {team = 1, c = i}
+      end
+    end
   end
 
 end
@@ -66,16 +92,25 @@ function team:draw()
 
   love.graphics.rectangle( "fill", gui.keyboard.x, gui.keyboard.y, 50, 50 )
 
-  love.graphics.rectangle( "fill", gui.keyboard.x, gui.keyboard.y, 50, 50 )
+  if gamepad ~= nil then
+    for i,v in ipairs(gamepad) do
+      love.graphics.rectangle( "fill", gui.pad[i].x, gui.pad[i].y, 50, 50 )
+    end
+  end
 
 end
 
 function team:keyreleased(key, code)
 
   if key == 'g' then
+      print(table.getn(roster)) --list number of players, 10 need in total computer assigned.
+
       gamestate.switch(game)
   end
 end
+
+
+
 
 --following to go in game.lua but bellow for development
 game = {}
