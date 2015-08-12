@@ -65,11 +65,11 @@ function team:draw()
   love.graphics.print("Press g to continue", 10, 10)
   love.graphics.setColor(250, 50, 50);
 
-  love.graphics.rectangle( "fill", gui.keyboard.x, gui.keyboard.y, 50, 50 )
+  love.graphics.rectangle( "fill", gui.keyboard.x, gui.keyboard.y, 50, 25 )
 
   if gamepad ~= nil then
     for i,v in ipairs(gamepad) do
-      love.graphics.rectangle( "fill", gui.pad[i].x, gui.pad[i].y, 50, 50 )
+      love.graphics.rectangle( "fill", gui.pad[i].x, gui.pad[i].y, 50, 25 )
     end
   end
 
