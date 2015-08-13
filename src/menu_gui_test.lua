@@ -11,7 +11,7 @@ end
 function menu:keyreleased(key, code)
 
     if key == 'g' then
-        gamestate.switch(menu_side)
+        gamestate.switch(game)
     end
 end
 

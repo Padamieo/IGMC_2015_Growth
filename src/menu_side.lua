@@ -1,4 +1,4 @@
-local team = {}
+local menu_side = {}
 
 --will this work here?
 function love.joystickadded(joystick)
@@ -14,7 +14,7 @@ function love.joystickadded(joystick)
 
 end
 
-function team:enter()
+function menu_side:enter()
   love.graphics.setBackgroundColor( 0, 10, 25 )
 
   gui = {}
@@ -35,7 +35,7 @@ function team:enter()
 
 end
 
-function team:update()
+function menu_side:update()
 
   if love.keyboard.isDown('left','a') then
     gui.keyboard.x = (love.graphics.getWidth()/4)-25
@@ -60,7 +60,7 @@ function team:update()
 
 end
 
-function team:draw()
+function menu_side:draw()
   love.graphics.setColor(250, 250, 250);
   love.graphics.print("Press g to continue", 10, 10)
   love.graphics.setColor(250, 50, 50);
@@ -75,13 +75,13 @@ function team:draw()
 
 end
 
-function team:keyreleased(key, code)
+function menu_side:keyreleased(key, code)
 
   if key == 'g' then
       print(table.getn(roster)) --list number of players, 10 need in total computer assigned.
 
-      gamestate.switch(game)
+      gamestate.switch(menu_team)
   end
 end
 
-return team;
+return menu_side;

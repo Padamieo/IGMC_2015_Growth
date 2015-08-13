@@ -9,7 +9,7 @@ lick.reset = true
 
 --define game states and functions to be included
 menu = require "menu"
-team = require "menu_side"
+menu_side = require "menu_side"
 --team = require "team"
 --game = require "game"
 
@@ -24,9 +24,32 @@ function love.load()
     dt = 0
     p1joystick = nil
     gamestate.registerEvents()
-    --gamestate.switch(menu)
-    gamestate.switch(team)
+
+    gamestate.switch(menu)
+    --gamestate.switch(menu_side)
 end
+
+
+
+menu_team = {}
+
+function menu_team:enter()
+    love.graphics.setBackgroundColor( 105, 133, 150 )
+end
+
+function menu_team:draw()
+    love.graphics.print("Press g to continue", 10, 10)
+
+end
+
+function menu_team:keyreleased(key, code)
+
+    if key == 'g' then
+        gamestate.switch(game)
+    end
+end
+
+
 
 --following to go in game.lua but bellow for development
 game = {}
